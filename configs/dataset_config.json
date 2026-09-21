@@ -1,0 +1,14 @@
+{
+  "active_stage": "A",
+  "name": "Stage A \u2014 Tiny Handmade",
+  "train_src": "/content/drive/MyDrive/Transformer_Mine/datasets/stage_a/train.en",
+  "train_tgt": "/content/drive/MyDrive/Transformer_Mine/datasets/stage_a/train.de",
+  "val_src": "/content/drive/MyDrive/Transformer_Mine/datasets/stage_a/train.en",
+  "val_tgt": "/content/drive/MyDrive/Transformer_Mine/datasets/stage_a/train.de",
+  "test_src": "/content/drive/MyDrive/Transformer_Mine/datasets/stage_a/train.en",
+  "test_tgt": "/content/drive/MyDrive/Transformer_Mine/datasets/stage_a/train.de",
+  "vocab_size": null,
+  "max_len": 20,
+  "batch_size": 4,
+  "purpose": "Pipeline smoke test. Model must overfit this."
+}

@@ -24,6 +24,7 @@ Setting deterministic seeds also helps minimize run-to-run variation, making it 
 ---
 
 # Phase 2: Dataset Strategy
+**File:** `02_data_preprocessing.ipynb`
 
 ## What This Phase Does
 
@@ -49,3 +50,89 @@ The staged approach allows each part of the system to be validated progressively
 | **Stage D** | WMT14 EN→DE | Serves as the actual reproduction target |
 
 This progression ensures that problems are identified early, before committing significant GPU time to large-scale training.
+
+
+# Phase 3 — Tokenization
+**File:** `03_tokenization.ipynb`
+
+## Overview
+Implements a Byte Pair Encoding (BPE) tokenizer from scratch in pure Python.
+No Hugging Face, no SentencePiece, no external tokenization libraries.
+
+---
+
+## What Was Done
+
+### Text Normalisation
+- Light cleaning applied before BPE training
+- Punctuation spaced out so `"student."` → `"student ."`
+- Whitespace collapsed
+- German capitalisation preserved (nouns are capitalised in German)
+
+### BPE Training
+- Words represented as character sequences with `</w>` end-of-word marker
+- Most frequent adjacent symbol pairs merged iteratively
+- Repeated until target vocabulary size is reached
+- Trained on **combined** source + target lines (shared vocabulary)
+
+### BPE Encoding
+- Applies learned merge rules to any new text at inference time
+- Falls back to character-level for unseen words — no true `<unk>` unless character itself is unseen
+
+### BPE Decoding
+- Joins subword symbols and removes `</w>` markers to recover original words
+
+### `BPETokenizer` Class
+- Clean API: `encode()`, `decode()`, `encode_with_special()`, `save()`, `load()`
+- Saved as `tokenizer.py` on Drive for reuse across sessions
+
+---
+
+## Two Tokenizers Trained
+
+| Tokenizer | Data | Vocab Size | Purpose |
+|---|---|---|---|
+| Stage A | 20 handmade sentences | ~200 tokens | Overfitting smoke test (Phase 13) |
+| Stage B | Tatoeba ~90k pairs | 8,000 tokens | Real small-scale experiments |
+
+---
+
+## Special Token IDs (Fixed)
+
+| Token | ID |
+|---|---|
+| `<pad>` | 0 |
+| `<bos>` | 1 |
+| `<eos>` | 2 |
+| `<unk>` | 3 |
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+├── vocab/
+│   ├── stage_a/
+│   │   ├── vocab.json
+│   │   └── merges.json
+│   └── stage_b/
+│       ├── vocab.json
+│       └── merges.json
+└── tokenizer.py
+```
+
+---
+
+## Integration with Phase 2
+`build_tf_dataset()` from Phase 2 accepts any `encode_fn(text) → list[int]`.
+Phase 3 passes `tokenizer.encode` as that function — no other changes needed.
+
+---
+
+## Verified
+- Round-trip `encode → decode` produces original text
+- Reload from disk produces identical IDs
+- Unknown words segmented to characters, not `<unk>`
+- BOS at `decoder_input` position 0 confirmed
+- All token IDs within valid vocabulary range
