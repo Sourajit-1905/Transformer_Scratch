@@ -231,3 +231,104 @@ transformer_reproduction/
 - Gradients flow through Q, K, and V
 - No causal violations in look-ahead mask
 - `attention.py` reloads and passes final shape check
+
+# Phase 5 — Multi-Head Attention
+**File:** `05_multi_head_attention.ipynb`
+
+## Overview
+Implements **Multi-Head Attention from scratch** as a `tf.keras.layers.Layer`.
+Combines Phase 4's scaled dot-product attention with learned linear projections,
+head splitting, and output projection. No `tf.keras.layers.MultiHeadAttention` used.
+
+---
+
+## Formula Implemented
+
+```
+MultiHead(Q, K, V) = Concat(head_1, ..., head_h) @ W_O
+where head_i = Attention(Q @ W_Q_i, K @ W_K_i, V @ W_V_i)
+```
+
+Five explicit steps:
+1. **Linear projections** — Q, K, V each projected through a Dense layer → `(batch, seq, d_model)`
+2. **Split heads** — reshape + transpose → `(batch, num_heads, seq, d_k)`
+3. **Scaled dot-product attention** — runs across all heads in parallel (Phase 4)
+4. **Concatenate heads** — transpose + reshape → `(batch, seq, d_model)`
+5. **Output projection** — final Dense layer W_O → `(batch, seq, d_model)`
+
+---
+
+## Transformer Base Dimensions
+
+| Parameter | Value |
+|---|---|
+| `d_model` | 512 |
+| `num_heads` | 8 |
+| `d_k = d_v` | 512 / 8 = **64** |
+| Parameters per layer | 4 × 512 × 512 = **1,048,576** |
+
+---
+
+## What Was Done
+
+### `MultiHeadAttention` Class
+- Four learned projection matrices: `W_Q`, `W_K`, `W_V`, `W_O`
+- All Dense layers with `use_bias=False` (following the paper)
+- `split_heads()` — reshape `(batch, seq, d_model)` → `(batch, num_heads, seq, d_k)`
+- `get_config()` implemented for Keras model saving/loading
+
+### Shape Tests
+- No mask, self-attention, padding mask, causal mask — all verified at `d_model=512, num_heads=8`
+
+### d_k Verification
+- Explicit check: `512 / 8 = 64` 
+- Parameter count confirmed: `4 × 512 × 512 = 1,048,576` 
+
+### Numerical Behavior Tests
+- Attention weights sum to `1.0` per head across key dimension
+- Different heads produce different attention patterns (not identical)
+- PAD positions receive `< 1e-7` weight across **all** heads
+- Output confirmed to be a transformation of input (not identity)
+
+### Causal Mask Test
+- Verified zero future-token violations across all heads, all batch items
+
+### Gradient Flow Test
+- Gradients confirmed for all 3 inputs (Q, K, V)
+- Gradients confirmed for all 4 weight matrices (W_Q, W_K, W_V, W_O)
+
+### Three Attention Modes
+All three modes used in the Transformer verified explicitly:
+
+| Mode | Q | K | V | Mask |
+|---|---|---|---|---|
+| Encoder self-attention | encoder input | encoder input | encoder input | src padding |
+| Decoder masked self-attention | decoder state | decoder state | decoder state | causal + padding |
+| Decoder cross-attention | decoder state | encoder output | encoder output | src padding |
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+└── multi_head_attention.py
+```
+
+---
+
+## Integration with Previous Phases
+- Imports `scaled_dot_product_attention` from `attention.py` (Phase 4)
+- Uses `create_padding_mask`, `create_look_ahead_mask`, `create_decoder_mask` from `data_pipeline.py` (Phase 2)
+- `multi_head_attention.py` saved to Drive — imported directly in Phases 6, 7, 8
+
+---
+
+## Verified
+- All 4 shape tests pass at Transformer Base dimensions
+- Parameter count matches expected `1,048,576`
+- Heads produce distinct attention patterns
+- No causal violations across any head
+- All weight matrices receive gradients
+- All three attention modes produce correct output shapes
+- `multi_head_attention.py` reloads and passes final shape check
