@@ -1,11 +1,11 @@
 # Transformer from Scratch — Project Structure
 
 ```text
-transformer_reproduction/          ← Google Drive root
+transformer_reproduction/         
 │
 ├── notebooks/
 │   ├── 01_environment_setup.ipynb
-│   ├── 02_data_preprocessing.ipynb       ← Phase 2 was done here
+│   ├── 02_data_preprocessing.ipynb       
 │   ├── 03_attention.ipynb
 │   ├── 04_multi_head_attention.ipynb
 │   ├── 05_positional_encoding.ipynb
@@ -44,4 +44,6 @@ transformer_reproduction/          ← Google Drive root
 │   └── results.csv
 │
 ├── data_pipeline.py               ← Saved utility module
+├── tokenizer.py
+├── attention.py  
 └── configs/dataset_config.json

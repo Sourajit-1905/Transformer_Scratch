@@ -136,3 +136,98 @@ Phase 3 passes `tokenizer.encode` as that function — no other changes needed.
 - Unknown words segmented to characters, not `<unk>`
 - BOS at `decoder_input` position 0 confirmed
 - All token IDs within valid vocabulary range
+
+# Phase 4 — Attention From Scratch
+**File:** `04_attention.ipynb`
+
+## Overview
+Implements **Scaled Dot-Product Attention from scratch** — the core mathematical
+building block of the entire Transformer. Every other component depends on this
+being correct before proceeding.
+
+---
+
+## Formula Implemented
+
+```
+Attention(Q, K, V) = softmax( Q @ K^T / sqrt(d_k) ) @ V
+```
+
+Five explicit steps:
+1. **Dot product** — `scores = Q @ K^T` → shape `(batch, heads, seq_q, seq_k)`
+2. **Scale** — `scores / sqrt(d_k)` → prevents softmax saturation at large d_k
+3. **Mask** — `scores + (mask * -1e9)` → drives ignored positions to ~0 after softmax
+4. **Softmax** — over key dimension (`axis=-1`) → probability distribution per query
+5. **Weighted sum** — `weights @ V` → final output per query position
+
+---
+
+## Transformer Base Dimensions
+
+| Parameter | Value |
+|---|---|
+| `d_model` | 512 |
+| `num_heads` | 8 |
+| `d_k = d_v` | 512 / 8 = **64** |
+
+---
+
+## What Was Done
+
+### `scaled_dot_product_attention(Q, K, V, mask=None)`
+- Implemented the exact formula from Section 3.2.1 of the paper
+- Returns both `output` and `attention_weights` (weights saved for Phase 23 visualisation)
+- `mask=1.0` at positions to ignore, `mask=0.0` at positions to attend to
+
+### Shape Tests
+- No mask: `(batch, heads, seq_q, d_v)` output confirmed
+- With padding mask: shapes unchanged, mask broadcasts correctly
+- Self-attention (`seq_q == seq_k`): verified
+
+### Numerical Behavior Tests
+- Attention weights sum to exactly `1.0` across key dimension
+- Masked positions receive weight `< 1e-7`
+- Scaling reduces score variance by factor of `d_k` (~64x)
+- Output confirmed to be a convex combination of V rows
+
+### Masking Tests
+- **Padding mask** — PAD positions (ID=0) receive ~0 attention weight; non-PAD weights sum to 1.0
+- **Causal mask** — no query attends to any future key position; all positions attend to self and past
+
+### Gradient Flow Test
+- Gradients confirmed non-None, non-NaN, non-zero for Q, K, and V
+- Backpropagation flows correctly through the full attention operation
+
+### Visualisations
+- Attention weight heatmap (random Q/K/V — shape verification only)
+- Causal mask matrix showing which positions each query can attend to
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+├── attention.py
+└── figures/
+    ├── attention_weights_phase4.png
+    └── causal_mask_phase4.png
+```
+
+---
+
+## Integration with Previous Phases
+- Uses `create_padding_mask()` and `create_look_ahead_mask()` from Phase 2
+- Uses Stage A `BPETokenizer` from Phase 3 for the visualisation example
+- `attention.py` saved to Drive — imported directly in Phase 5
+
+---
+
+## Verified
+- All tensor shapes correct for Transformer Base dimensions
+- Softmax weights sum to 1.0 (tolerance < 1e-5)
+- Masked positions have weight < 1e-7
+- Scaling reduces variance ~64x as expected
+- Gradients flow through Q, K, and V
+- No causal violations in look-ahead mask
+- `attention.py` reloads and passes final shape check
