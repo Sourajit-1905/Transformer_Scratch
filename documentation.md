@@ -447,3 +447,93 @@ transformer_reproduction/
 - Relative position reconstruction error `< 1e-5`
 - Gradient = `sqrt(512)` confirmed
 - `positional_encoding.py` reloads and passes all assertions
+
+# Phase 7 — Feed-Forward Network
+**File:** `07_feed_forward.ipynb`
+
+## Overview
+Implements the **Position-wise Feed-Forward Network (FFN)** from Section 3.3
+of the paper. This is the second sub-layer inside every encoder and decoder layer,
+applied independently and identically to each position in the sequence.
+
+---
+
+## Formula Implemented
+
+```
+FFN(x) = max(0, x W1 + b1) W2 + b2
+```
+
+Two linear transformations with a ReLU activation in between.
+No interaction between positions — each position is processed independently
+using the same weights.
+
+---
+
+## Transformer Base Dimensions
+
+| Parameter | Value |
+|---|---|
+| `d_model` | 512 |
+| `d_ff` | 2048 (4x expansion) |
+| `dropout` | 0.1 (applied after first dense layer) |
+| Parameters per FFN layer | 2,099,712 |
+
+---
+
+## What Was Done
+
+### `FeedForwardNetwork` Class
+- Two `tf.keras.layers.Dense` layers: `dense_1` (d_ff, ReLU) and `dense_2` (d_model)
+- Dropout applied after the first activation
+- `supports_masking = True` set on the layer
+- `get_config()` implemented for Keras model saving/loading
+
+### Shape Tests
+- Verified correct output shape `(batch, seq_len, d_model)` for variable sequence
+  lengths: 1, 5, 50, 128 — all pass
+
+### Parameter Count
+- Verified against expected value: `2 × 512 × 2048 + 2048 + 512 = 2,099,712`
+
+### Numerical Behavior Tests
+- ReLU confirmed: no negative values after `dense_1`
+- Position-wise independence: changing one position does not affect others
+- Deterministic at inference (`training=False`): two passes produce identical output
+- Stochastic during training (`training=True`): two passes differ due to dropout
+
+### Gradient Flow Test
+- Gradient flows through the layer back to the input
+- Both weight matrices (`W1`, `W2`) and both biases receive non-zero, non-NaN gradients
+
+### Paper Comparison
+- No deviations from Section 3.3
+- Formula, dimensions, activation, dropout placement all match exactly
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+└── feed_forward.py
+```
+
+---
+
+## Integration with Previous Phases
+- No dependencies on Phase 4, 5, or 6 — standalone layer
+- `feed_forward.py` saved to Drive — imported directly in Phase 8 (Encoder) and
+  Phase 9 (Decoder)
+- Used as the second sub-layer in every encoder and decoder layer
+
+---
+
+## Verified
+- Output shape correct for all tested sequence lengths
+- Parameter count matches expected `2,099,712`
+- ReLU removes all negative intermediate activations
+- Positions confirmed to be processed independently
+- Inference is deterministic, training is stochastic
+- All gradients non-None and non-zero
+- `feed_forward.py` reloads and passes shape and parameter count assertions

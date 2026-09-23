@@ -47,5 +47,7 @@ transformer_reproduction/
 ├── tokenizer.py
 ├── attention.py  
 ├── multi_head_attention.py
-├──
+├── positional_encoding.py
+├── feed_forward.py
+│
 └── configs/dataset_config.json
