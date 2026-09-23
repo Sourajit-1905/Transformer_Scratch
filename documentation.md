@@ -332,3 +332,118 @@ transformer_reproduction/
 - All weight matrices receive gradients
 - All three attention modes produce correct output shapes
 - `multi_head_attention.py` reloads and passes final shape check
+
+# Phase 6 — Positional Encoding
+**File:** `06_positional_encoding.ipynb`
+
+## Overview
+Implements the **Sinusoidal Positional Encoding** exactly as described in
+Section 3.5 of the paper. Since the Transformer has no recurrence or convolution,
+this is the only mechanism that informs the model about token order.
+
+---
+
+## Formula Implemented
+
+```
+PE(pos, 2i)   = sin( pos / 10000^(2i / d_model) )
+PE(pos, 2i+1) = cos( pos / 10000^(2i / d_model) )
+```
+
+Where:
+- `pos` — position in the sequence (0, 1, 2, ..., max_len-1)
+- `i` — dimension index (0, 1, ..., d_model/2 - 1)
+- Even dimensions → **sine**, Odd dimensions → **cosine**
+
+---
+
+## Key Properties Verified
+
+| Property | Status |
+|---|---|
+| Fixed (no learned parameters) |
+| Values bounded in `[-1, 1]` |
+| Each position has a unique encoding vector | 
+| PE(pos+k) is a linear function of PE(pos) |
+| Generalises beyond training sequence lengths | (pre-computed to max_len=5000) |
+
+---
+
+## Transformer Base Configuration
+
+| Parameter | Value |
+|---|---|
+| `d_model` | 512 |
+| `max_len` | 5000 |
+| `dropout` | 0.1 (applied after adding PE) |
+
+---
+
+## What Was Done
+
+### `PositionalEncoding` Class
+- PE matrix pre-computed **once** at `__init__` using numerically stable formula:
+  `exp(-log(10000) * i / d_model)` instead of `10000^(2i/d_model)`
+- Sliced to actual `seq_len` at call time — handles variable length sequences
+- Embeddings scaled by `sqrt(d_model)` before adding PE (paper Section 3.4)
+- Dropout applied after adding PE (paper Section 5.4)
+- `supports_masking = True` set to suppress Keras implicit mask warning
+- Zero trainable parameters
+
+### Shape and Value Tests
+- Output shape correct at Transformer Base dimensions
+- PE matrix shape `(1, 5000, 512)` verified
+- Even dims = `sin(0) = 0.0` and odd dims = `cos(0) = 1.0` at position 0
+- Embedding scaling by `sqrt(512)` verified numerically
+
+### Exact Formula Verification
+- Manually computed 3 specific PE values at `d_model=8`
+- All match implementation to `< 1e-6`
+
+### Visualisation
+- Heatmap of full PE matrix (200 positions × 512 dims)
+- Frequency plot showing low dims oscillate fast, high dims oscillate slow
+- Saved to `figures/positional_encoding.png`
+
+### Unique Position Test
+- 500 randomly sampled positions checked for duplicates — none found
+- All adjacent positions confirmed distinct
+
+### Relative Position Property
+- Verified numerically that `PE(pos+k)` can be reconstructed as a linear
+  function of `PE(pos)` using trigonometric identities
+- Error `< 1e-5` for all 4 tested `(pos, k)` pairs
+
+### Gradient Flow Test
+- Gradient flows through PE layer back to embedding input
+- Gradient value = `sqrt(d_model)` = `sqrt(512)` ≈ `22.627` everywhere (correct,
+  since `d(x * sqrt(d_model) + pe) / dx = sqrt(d_model)`)
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+├── positional_encoding.py
+└── figures/
+    └── positional_encoding.png
+```
+
+---
+
+## Integration with Previous Phases
+- `positional_encoding.py` saved to Drive — imported directly in Phase 8 (Encoder)
+- No dependencies on Phase 4 or Phase 5 — standalone layer
+- Will be placed immediately after the embedding layer in both encoder and decoder
+
+---
+
+## Verified
+- All 6 shape/value sub-tests pass
+- All 3 manual formula cross-checks match to `< 1e-6`
+- Figure renders and saves with clearly visible sinusoidal pattern
+- No duplicate position encodings in 500-position sample
+- Relative position reconstruction error `< 1e-5`
+- Gradient = `sqrt(512)` confirmed
+- `positional_encoding.py` reloads and passes all assertions
