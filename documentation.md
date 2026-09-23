@@ -537,3 +537,121 @@ transformer_reproduction/
 - Inference is deterministic, training is stochastic
 - All gradients non-None and non-zero
 - `feed_forward.py` reloads and passes shape and parameter count assertions
+
+# Phase 8 — Encoder
+**File:** `08_encoder.ipynb`
+
+## Overview
+Assembles the **Encoder Layer** and full **Encoder Stack** by combining
+Multi-Head Attention, Feed-Forward Network, Residual Connections, and
+Layer Normalization. First phase where all components from Phases 4-7
+work together as a complete unit.
+
+---
+
+## Architecture (POST-LN, original paper)
+
+```
+src_ids
+   |
+Embedding (vocab_size, d_model=512)
+   |
+PositionalEncoding (dropout=0.1)
+   |
+[EncoderLayer x 6]
+   |-- MultiHeadAttention(x, x, x, mask)
+   |-- Dropout -> Add -> LayerNorm
+   |-- FeedForwardNetwork(x)
+   |-- Dropout -> Add -> LayerNorm
+   |
+encoder output: (batch, src_len, 512)
+```
+
+POST-LN means: `x = LayerNorm(x + SubLayer(x))`
+Not Pre-LN (modern variant) — follows the original paper exactly.
+
+---
+
+## Transformer Base Configuration
+
+| Parameter | Value |
+|---|---|
+| `num_layers` | 6 |
+| `d_model` | 512 |
+| `num_heads` | 8 |
+| `d_ff` | 2048 |
+| `dropout` | 0.1 |
+| `max_len` | 5000 |
+
+---
+
+## What Was Done
+
+### `EncoderLayer` Class
+- Sub-layer 1: `MultiHeadAttention(x, x, x)` (self-attention) -> Dropout -> Add -> LayerNorm
+- Sub-layer 2: `FeedForwardNetwork(x)` -> Dropout -> Add -> LayerNorm
+- Two separate `LayerNormalization` layers (`epsilon=1e-6`)
+- Two separate `Dropout` layers (one per sub-layer)
+- Returns both output `x` and attention weights for all layers
+- `supports_masking = True` set on all layers
+
+### `Encoder` Class
+- Token `Embedding` layer (vocab_size -> d_model)
+- `PositionalEncoding` (includes embedding scaling by `sqrt(d_model)` and dropout)
+- List of N `EncoderLayer` instances
+- Collects and returns attention weights from every layer as a dict
+
+### Shape Tests
+- Encoder output shape `(batch, src_len, d_model)` verified
+- All 6 attention weight tensors shape `(batch, num_heads, src_len, src_len)` verified
+
+### Parameter Count
+Full breakdown per layer:
+
+| Component | Parameters |
+|---|---|
+| Embedding | `vocab_size x d_model` |
+| MultiHeadAttention per layer | `4 x 512^2 = 1,048,576` |
+| FeedForwardNetwork per layer | `2 x 512 x 2048 + 2048 + 512 = 2,099,712` |
+| LayerNorm x2 per layer | `2 x 2 x 512 = 2,048` |
+
+### Residual Connection and LayerNorm Verification
+- Output confirmed to be a non-trivial transformation of input
+- LayerNorm output: mean < 0.1 and std within 0.15 of 1.0 per position
+- Residual connection confirmed active
+
+### Padding Mask Test
+- Two sequences with identical non-PAD tokens but different padding
+- Max diff at non-PAD positions < 1e-5 — PAD tokens do not affect non-PAD output
+
+### Gradient Flow Test
+- All trainable parameters receive non-None, non-NaN gradients
+- Zero parameters with None or NaN gradients confirmed
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+└── encoder.py
+```
+
+---
+
+## Integration with Previous Phases
+- Imports `MultiHeadAttention` from Phase 5
+- Imports `FeedForwardNetwork` from Phase 7
+- Imports `PositionalEncoding` from Phase 6
+- Imports `create_padding_mask` from Phase 2
+- `encoder.py` saved to Drive — imported directly in Phase 10 (Transformer)
+
+---
+
+## Verified
+- Encoder output shape correct at Transformer Base dimensions
+- All 6 layer attention weight shapes correct
+- LayerNorm statistics within expected range
+- PAD positions do not influence non-PAD encoder output
+- All parameters receive valid gradients
+- `encoder.py` reloads, output shape `(1, 8, 512)`, 6 attention weight dicts returned

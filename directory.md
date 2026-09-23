@@ -49,5 +49,6 @@ transformer_reproduction/
 ├── multi_head_attention.py
 ├── positional_encoding.py
 ├── feed_forward.py
+├── encoder.py
 │
 └── configs/dataset_config.json
