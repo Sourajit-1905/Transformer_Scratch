@@ -894,3 +894,122 @@ the paper exactly.
 - Parameter count printed with full encoder/decoder breakdown
 - Zero None gradients, zero NaN gradients across full model
 - `transformer_model.py` reloads, logits shape `(1, 7, 8000)` confirmed
+
+# Phase 11 — Training Loss and Loop
+**File:** `11_training.ipynb`
+
+## Overview
+Implements the complete **training infrastructure** — label smoothing loss,
+the original learning rate schedule from the paper, the training step with
+gradient clipping, checkpoint management for session recovery, and the full
+training loop. All utilities saved to `training.py` for reuse across sessions.
+
+---
+
+## What Was Done
+
+### Label Smoothing Loss
+From paper Section 5.4 (`eps = 0.1`).
+
+Standard cross-entropy uses a one-hot target. Label smoothing distributes
+a small amount of probability mass across all tokens:
+
+```
+smoothed = one_hot * (1 - eps) + (eps / vocab_size)
+loss     = -sum(smoothed * log_softmax(logits))
+```
+
+- PAD positions (`target == 0`) contribute zero loss via a non-pad mask
+- Loss is the mean over non-PAD tokens only
+- Implemented manually (not via Keras) so all steps are transparent
+
+Loss tests verified:
+- PAD positions do not contribute to loss
+- Near-perfect prediction gives near-zero loss
+- With `smoothing=0` output matches Keras `SparseCategoricalCrossentropy`
+
+### Learning Rate Schedule
+From paper Section 5.3:
+
+```
+lrate = d_model^(-0.5) * min(step^(-0.5), step * warmup_steps^(-1.5))
+```
+
+- Linear warmup for `step <= warmup_steps`
+- Inverse square root decay for `step > warmup_steps`
+- Peak lr at `step = warmup_steps = 4000`
+- Implemented as `tf.keras.optimizers.schedules.LearningRateSchedule`
+- Peak lr verified against formula: `512^(-0.5) * 4000^(-0.5) ≈ 0.000696`
+- Plot saved to `figures/lr_schedule.png`
+
+### Optimizer
+Adam with paper values:
+
+| Parameter | Value |
+|---|---|
+| `beta_1` | 0.9 |
+| `beta_2` | 0.98 |
+| `epsilon` | 1e-9 (paper value — not Keras default 1e-7) |
+
+### Training Step (`train_step`)
+- Decorated with `@tf.function` for speed
+- Teacher forcing: decoder sees gold prefix at every step
+- Label smoothing loss applied
+- Gradients clipped by global norm (`clip_norm=1.0`)
+- Optimizer applies clipped gradients
+
+### Checkpoint Manager
+- Saves model weights and optimizer state (including step count)
+- Restores from latest checkpoint on session resume
+- Optimizer state preservation ensures learning rate schedule
+  continues correctly after a Colab disconnect
+
+### Experiment Logger
+- CSV at `experiments/results.csv`
+- Columns match project spec Section 34 requirements
+- `init_results_csv()` creates file with headers if absent
+- `log_experiment()` appends one record per experiment
+
+### Full Training Loop (`train()`)
+- Cycles through dataset with `.repeat()` — no epoch boundary
+- Logs training loss every `log_every` steps
+- Computes validation loss every `validate_every` steps
+- Saves checkpoint every `checkpoint_every` steps
+- Prints elapsed time, steps/sec, and ETA
+- Auto-restores from checkpoint on resume — no restart from zero
+
+### Smoke Test
+- 100 steps on Stage A data with a 2-layer, `d_model=128` model
+- All losses confirmed finite
+- Loss confirmed to trend downward
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+├── training.py
+├── experiments/
+│   └── results.csv
+└── figures/
+    └── lr_schedule.png
+```
+
+---
+
+## Integration with Previous Phases
+- Imports `TiedTransformer` from Phase 10
+- Imports `build_tf_dataset`, `load_raw_pairs` from Phase 2
+- Imports `BPETokenizer` from Phase 3
+- `training.py` saved to Drive — imported in all subsequent training phases
+
+---
+
+## Verified
+- All 3 loss function tests pass
+- Peak learning rate matches formula at step 4000
+- LR schedule plot shows warmup and decay correctly
+- 100 smoke test steps all produce finite loss
+- Loss trends downward over 100 steps
+- `training.py` saves without errors
