@@ -779,3 +779,118 @@ transformer_reproduction/
 - Full encoder-decoder pipeline runs end-to-end without errors
 - All parameters receive valid gradients
 - `decoder.py` reloads, output shape `(1, 8, 512)`, 12 attention entries (6 layers x self + cross)
+
+# Phase 10 — Complete Transformer
+**File:** `10_transformer.ipynb`
+
+## Overview
+Assembles the **complete Transformer model** by connecting the Encoder and Decoder
+from Phases 8 and 9, adding a final linear projection to produce vocabulary-sized
+logits. First phase where the full end-to-end model exists as a single callable unit.
+
+---
+
+## Data Flow
+
+```
+src_ids (batch, src_len)
+   |
+Encoder -> enc_output (batch, src_len, d_model)
+   |
+Decoder(tgt_ids, enc_output) -> dec_output (batch, tgt_len, d_model)
+   |
+Linear projection -> logits (batch, tgt_len, vocab_size)
+```
+
+---
+
+## Transformer Base Configuration
+
+| Parameter | Value |
+|---|---|
+| `num_layers` | 6 (encoder and decoder) |
+| `d_model` | 512 |
+| `num_heads` | 8 |
+| `d_ff` | 2048 |
+| `dropout` | 0.1 |
+| `max_len` | 5000 |
+| `vocab_size` | 8,000 (Stage B — will be ~37k for WMT14) |
+| Weight tying | yes |
+
+---
+
+## What Was Done
+
+### `Transformer` Class
+- Combines `Encoder`, `Decoder`, and a final `Dense` output projection
+- Output projection: `d_model -> vocab_size`, no bias, no activation
+- Masks auto-generated inside `call()` if not provided
+- `build_masks()` utility method for external mask generation
+- Returns both logits and all attention weights (encoder + decoder)
+
+### `TiedTransformer` Class
+- Extends `Transformer` with weight tying (paper Section 3.4)
+- Output projection uses decoder embedding weights transposed:
+  `logits = dec_output @ embedding_weights^T`
+- Requires `src_vocab == tgt_vocab` (shared BPE vocabulary)
+- Reduces parameters by `vocab_size x d_model`
+- This is the primary model used going forward
+
+### Shape Test
+- Logits shape `(batch, tgt_len, vocab_size)` verified
+- `softmax(logits)` confirmed to sum to `1.0` per position
+
+### Parameter Count
+Full per-layer breakdown documented:
+
+| Component | Parameters per layer |
+|---|---|
+| MultiHeadAttention | `4 x 512^2 = 1,048,576` |
+| FeedForwardNetwork | `2 x 512 x 2048 + 2048 + 512 = 2,099,712` |
+| LayerNorm x2 | `4 x 512 = 2,048` |
+
+With `vocab_size=8,000` (Stage B), total is less than the paper's ~65M.
+With `vocab_size=37,000` (WMT14) the architecture will match the paper.
+
+### Model Summary
+Configuration table printed comparing all values against the paper.
+
+### Gradient Flow Test
+- All parameters in the full Transformer receive non-None, non-NaN gradients
+- Tested with a 2-layer reduced model for speed
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+└── transformer_model.py
+```
+
+---
+
+## Integration with Previous Phases
+- Imports `Encoder` from Phase 8 (`encoder.py`)
+- Imports `Decoder` from Phase 9 (`decoder.py`)
+- Imports mask functions from Phase 2 (`data_pipeline.py`)
+- `transformer_model.py` saved to Drive — imported in all training and inference phases
+
+---
+
+## Deviation from Paper
+Weight tying in the paper ties all three matrices:
+encoder embedding, decoder embedding, and output projection.
+Our implementation ties decoder embedding and output projection.
+Encoder and decoder use separate embedding layers when `src_vocab != tgt_vocab`.
+When using a shared BPE vocabulary (`src_vocab == tgt_vocab`), this matches
+the paper exactly.
+
+---
+
+## Verified
+- Logits shape `(batch, tgt_len, vocab_size)` correct
+- Softmax over logits sums to `1.0` per position
+- Parameter count printed with full encoder/decoder breakdown
+- Zero None gradients, zero NaN gradients across full model
+- `transformer_model.py` reloads, logits shape `(1, 7, 8000)` confirmed

@@ -51,5 +51,6 @@ transformer_reproduction/
 ├── feed_forward.py
 ├── encoder.py
 ├── decoder.py
+├── transformer_model.py
 │
 └── configs/dataset_config.json
