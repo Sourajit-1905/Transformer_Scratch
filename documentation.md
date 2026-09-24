@@ -655,3 +655,127 @@ transformer_reproduction/
 - PAD positions do not influence non-PAD encoder output
 - All parameters receive valid gradients
 - `encoder.py` reloads, output shape `(1, 8, 512)`, 6 attention weight dicts returned
+
+
+# Phase 9 — Decoder
+**File:** `09_decoder.ipynb`
+
+## Overview
+Implements the **Decoder Layer** and full **Decoder Stack**. More complex than
+the encoder — each decoder layer has three sub-layers instead of two, adding a
+cross-attention sub-layer that attends to the encoder output.
+
+---
+
+## Architecture (POST-LN, original paper)
+
+```
+tgt_ids
+   |
+Embedding (vocab_size, d_model=512)
+   |
+PositionalEncoding (dropout=0.1)
+   |
+[DecoderLayer x 6]
+   |-- Masked MultiHeadAttention(x, x, x, dec_mask)   <- causal + padding mask
+   |-- Dropout -> Add -> LayerNorm
+   |-- Cross MultiHeadAttention(x, enc_output, enc_output, enc_mask)
+   |-- Dropout -> Add -> LayerNorm
+   |-- FeedForwardNetwork(x)
+   |-- Dropout -> Add -> LayerNorm
+   |
+decoder output: (batch, tgt_len, 512)
+```
+
+---
+
+## Transformer Base Configuration
+
+| Parameter | Value |
+|---|---|
+| `num_layers` | 6 |
+| `d_model` | 512 |
+| `num_heads` | 8 |
+| `d_ff` | 2048 |
+| `dropout` | 0.1 |
+
+---
+
+## Three Sub-Layers
+
+| Sub-layer | Q | K | V | Mask |
+|---|---|---|---|---|
+| Masked self-attention | decoder input | decoder input | decoder input | causal + padding |
+| Cross-attention | decoder state | encoder output | encoder output | encoder padding |
+| Feed-forward | — | — | — | none |
+
+---
+
+## What Was Done
+
+### `DecoderLayer` Class
+- Sub-layer 1: `Masked MultiHeadAttention(x, x, x)` -> Dropout -> Add -> LayerNorm
+- Sub-layer 2: `Cross MultiHeadAttention(x, enc_output, enc_output)` -> Dropout -> Add -> LayerNorm
+- Sub-layer 3: `FeedForwardNetwork(x)` -> Dropout -> Add -> LayerNorm
+- Three separate `LayerNormalization` layers (`epsilon=1e-6`)
+- Three separate `Dropout` layers (one per sub-layer)
+- Returns output `x`, self-attention weights, and cross-attention weights
+- `supports_masking = True` set on all layers
+
+### `Decoder` Class
+- Token `Embedding` layer (vocab_size -> d_model)
+- `PositionalEncoding` (includes embedding scaling and dropout)
+- List of N `DecoderLayer` instances
+- Collects and returns self and cross attention weights from every layer
+
+### Shape Tests
+- Decoder output shape `(batch, tgt_len, d_model)` verified
+- Self-attention weights shape `(batch, num_heads, tgt_len, tgt_len)` verified
+- Cross-attention weights shape `(batch, num_heads, tgt_len, src_len)` verified
+
+### Causal Mask Verification
+- Checked across 2 layers, 2 batches, 8 heads, all position pairs
+- Zero future-token violations found
+
+### Cross-Attention Verification
+- Cross-attention weight shape confirmed `(batch, num_heads, tgt_len, src_len)`
+- Encoder PAD positions receive weight `< 1e-7` in cross-attention
+
+### Encoder-Decoder Integration Test
+- First time full encoder-decoder pipeline runs end-to-end
+- Real token IDs passed through encoder then decoder with correct masks
+- Both output shapes confirmed correct
+
+### Gradient Flow Test
+- All trainable parameters receive non-None, non-NaN gradients
+- Zero parameters with None or NaN gradients confirmed
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+└── decoder.py
+```
+
+---
+
+## Integration with Previous Phases
+- Imports `MultiHeadAttention` from Phase 5
+- Imports `FeedForwardNetwork` from Phase 7
+- Imports `PositionalEncoding` from Phase 6
+- Imports `Encoder` from Phase 8 (for integration test)
+- Imports mask functions from Phase 2
+- `decoder.py` saved to Drive — imported directly in Phase 10 (Transformer)
+
+---
+
+## Verified
+- Decoder output shape correct at Transformer Base dimensions
+- Self and cross attention weight shapes correct for all 6 layers
+- Zero causal violations across all layers, heads, and batch items
+- Encoder PAD positions correctly ignored in cross-attention
+- Full encoder-decoder pipeline runs end-to-end without errors
+- All parameters receive valid gradients
+- `decoder.py` reloads, output shape `(1, 8, 512)`, 12 attention entries (6 layers x self + cross)

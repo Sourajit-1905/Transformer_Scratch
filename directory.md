@@ -43,12 +43,13 @@ transformer_reproduction/
 ├── experiments/
 │   └── results.csv
 │
-├── data_pipeline.py               ← Saved utility module
+├── data_pipeline.py               
 ├── tokenizer.py
 ├── attention.py  
 ├── multi_head_attention.py
 ├── positional_encoding.py
 ├── feed_forward.py
 ├── encoder.py
+├── decoder.py
 │
 └── configs/dataset_config.json
