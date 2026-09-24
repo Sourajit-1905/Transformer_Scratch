@@ -10,9 +10,9 @@ Usage:
 """
 
 import tensorflow as tf
-from encoder import Encoder
-from decoder import Decoder
-from data_pipeline import create_padding_mask, create_decoder_mask
+from utils.encoder import Encoder
+from utils.decoder import Decoder
+from utils.data_pipeline import create_padding_mask, create_decoder_mask
 
 
 class Transformer(tf.keras.Model):

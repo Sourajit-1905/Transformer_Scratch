@@ -9,9 +9,9 @@ Usage:
 """
 
 import tensorflow as tf
-from multi_head_attention import MultiHeadAttention
-from feed_forward import FeedForwardNetwork
-from positional_encoding import PositionalEncoding
+from utils.multi_head_attention import MultiHeadAttention
+from utils.feed_forward import FeedForwardNetwork
+from utils.positional_encoding import PositionalEncoding
 
 
 class EncoderLayer(tf.keras.layers.Layer):

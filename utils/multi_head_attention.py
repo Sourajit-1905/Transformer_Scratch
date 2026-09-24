@@ -10,7 +10,7 @@ Usage:
 """
 
 import tensorflow as tf
-from attention import scaled_dot_product_attention
+from utils.attention import scaled_dot_product_attention
 
 
 class MultiHeadAttention(tf.keras.layers.Layer):
