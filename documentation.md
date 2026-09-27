@@ -1013,3 +1013,142 @@ transformer_reproduction/
 - 100 smoke test steps all produce finite loss
 - Loss trends downward over 100 steps
 - `training.py` saves without errors
+
+# Phase 12 — Toy Overfitting
+**File:** `12_toy_overfit.ipynb`
+
+## Overview
+Verifies the entire pipeline by **deliberately overfitting on 20 handmade
+Stage A sentence pairs**. A correct Transformer implementation must be able
+to memorise 20 examples. This is a mandatory gate — if this fails, nothing
+proceeds to real training.
+
+---
+
+## Why This Phase Exists
+
+A model that cannot overfit a tiny dataset has a bug somewhere in:
+- Teacher forcing shift (dec_input vs dec_target)
+- Mask construction (causal or padding)
+- Loss function (PAD masking, label smoothing)
+- Positional encoding (not being added)
+- Gradient flow (broken backprop)
+
+Catching this on 20 examples is far cheaper than discovering it after
+hours of WMT14 training.
+
+---
+
+## Configuration
+
+| | Value |
+|---|---|
+| **Label** | COLAB-SCALE CONFIGURATION |
+| `num_layers` | 2 |
+| `d_model` | 128 |
+| `num_heads` | 4 |
+| `d_ff` | 512 |
+| `dropout` | 0.0 (disabled — we want to overfit) |
+| `learning_rate` | 3e-4 (fixed — no schedule) |
+| Dataset | Stage A — 20 handmade EN-DE pairs |
+| Batch size | 20 (entire dataset in one batch) |
+| Shuffle | disabled (stable overfit signal) |
+| Convergence metric | prediction accuracy (not loss) |
+| Target | 20/20 exact matches |
+| Max steps | 3000 |
+
+---
+
+## What Was Done
+
+### Data Loading
+- Loaded all 20 Stage A sentence pairs
+- Entire dataset in one batch — each step sees all 20 examples
+- Shuffle disabled for a clean, stable training signal
+
+### Toy Model
+- Small model built to overfit fast and use minimal memory
+- `TiedTransformer` with COLAB-SCALE configuration
+- Dropout set to 0.0 — regularisation actively harmful here
+- Fixed learning rate `3e-4` — LR schedule decays too fast for tiny data
+
+### Eager Training Step
+- `@tf.function` removed — causes Colab graph tracing issues on tiny datasets
+  that prevent loss from decreasing despite weights updating correctly
+- Replaced with `eager_train_step()` running in standard eager mode
+- Weights confirmed to update correctly via diagnostic check
+
+### Convergence Metric — Accuracy not Loss
+- Loss cannot reach 0 due to the label smoothing floor
+- With `vocab_size=137` and `smoothing=0.1`, theoretical minimum loss ≈ 0.49
+- Loss of ~0.81 at convergence is expected and correct
+- **Prediction accuracy is the correct convergence signal for toy overfit**
+- Accuracy checked every 200 steps during training
+
+### Result
+- **20/20 exact matches achieved**
+- All 20 German translations reproduced exactly from English input
+- Training confirmed complete
+
+### Debugging Journey (documented)
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Loss stuck at 0.81 with `@tf.function` | Colab graph tracing issue | Switch to eager mode |
+| Loss stuck at 0.81 in eager mode | Label smoothing floor, not a bug | Use accuracy as metric |
+| `shift correct: False` in diagnostic | PAD difference at sequence end | Expected — content is correct |
+| Gradient norms near zero | Model already converged | Confirmed by 100% accuracy |
+
+### Go / No-Go Decision
+Five checks — all passed:
+
+| Check | Target | Result |
+|---|---|---|
+| All losses finite | yes | PASS |
+| Loss decreased overall | yes | PASS |
+| Exact match rate | 100% | PASS |
+| Max per-example loss | < 1.0 | PASS |
+| No NaN in predictions | yes | PASS |
+
+---
+
+## Key Lessons Learned
+
+- Do not use loss value alone as convergence signal when label smoothing is active
+- `@tf.function` can silently prevent learning on tiny datasets in Colab
+- Label smoothing floor = `smoothing * log(vocab_size)` ≈ 0.49 for this setup
+- A loss well below random (0.81 vs uniform 4.92) with correct predictions
+  means the model has converged — not that it is broken
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+├── checkpoints/
+│   └── toy_overfit/
+├── experiments/
+│   └── results.csv
+└── figures/
+    └── toy_overfit_loss.png
+```
+
+---
+
+## Integration with Previous Phases
+- Imports `TiedTransformer` from Phase 10
+- Imports `label_smoothing_loss`, `TransformerLRSchedule` from Phase 11
+- Imports `build_tf_dataset`, `load_raw_pairs` from Phase 2
+- Imports `BPETokenizer` from Phase 3
+- Uses Stage A tokenizer and data from Phases 2 and 3
+
+---
+
+## Verified
+- 20/20 exact prediction matches on training data
+- All losses finite throughout training
+- Loss decreased from initial value
+- No NaN predictions
+- All 5 Go/No-Go checks passed
+- Pipeline confirmed correct — cleared to proceed to Phase 13

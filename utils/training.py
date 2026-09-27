@@ -127,3 +127,19 @@ def train(model, optimizer, train_dataset, val_dataset, vocab_size,
 
     print(f"Training complete. Final checkpoint: {manager.save()}")
     return history
+
+
+def eager_train_step(model, optimizer, src_ids, dec_input, dec_target, vocab_size):
+    """
+    Single training step in eager mode (no @tf.function).
+    Used for toy overfit to avoid Colab graph tracing issues.
+    """
+    with tf.GradientTape() as tape:
+        logits, _ = model(src_ids, dec_input, training=True)
+        loss = label_smoothing_loss(
+            logits, dec_target, vocab_size, smoothing=0.1
+        )
+    gradients = tape.gradient(loss, model.trainable_variables)
+    gradients, _ = tf.clip_by_global_norm(gradients, clip_norm=1.0)
+    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+    return loss
