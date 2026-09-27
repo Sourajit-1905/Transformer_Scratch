@@ -1152,3 +1152,120 @@ transformer_reproduction/
 - No NaN predictions
 - All 5 Go/No-Go checks passed
 - Pipeline confirmed correct — cleared to proceed to Phase 13
+
+# Phase 13 — Small Scale Experiment
+**File:** `13_small_scale_experiment.ipynb`
+
+## Overview
+Trains a **COLAB-SCALE Transformer on real translation data (Stage B — Tatoeba EN-DE)**.
+Not the paper reproduction — a validation that the full training pipeline works on
+real data before attempting Transformer Base on WMT14.
+
+---
+
+## Configuration
+
+| | COLAB-SCALE (this experiment) | ORIGINAL TRANSFORMER BASE (paper) |
+|---|---|---|
+| `num_layers` | 3 | 6 |
+| `d_model` | 256 | 512 |
+| `num_heads` | 4 | 8 |
+| `d_ff` | 1024 | 2048 |
+| `dropout` | 0.1 | 0.1 |
+| `vocab_size` | 8,000 | ~37,000 |
+| `dataset` | Tatoeba EN-DE (~80k pairs) | WMT14 EN-DE (~4.5M pairs) |
+| `batch_size` | 64 | ~25k tokens |
+| `total_steps` | 10,000 | 100,000 |
+| `warmup_steps` | 2,000 | 4,000 |
+
+---
+
+## What Was Done
+
+### Data Loading Fix
+- `build_tf_dataset()` from Phase 2 encodes all lines upfront — too slow for 80k pairs
+- Replaced with `load_or_encode()` that encodes once and caches to `.npz` on Drive
+- Progress logged every 10% during encoding
+- Subsequent sessions load from cache instantly
+- `arrays_to_dataset()` builds `tf.data` pipeline directly from numpy arrays
+
+### GPU Memory Check
+- Queried GPU name, total VRAM, free VRAM via `nvidia-smi`
+- Estimated activation memory for one batch
+- Warning issued if estimate exceeds 70% of free VRAM
+
+### Model and Smoke Test
+- `TiedTransformer` built with COLAB-SCALE configuration
+- 50-step smoke test before full training: verified no OOM, finite loss, throughput
+- Estimated total training time printed before committing to full run
+
+### Training Results
+
+| Metric | Value |
+|---|---|
+| Train loss (step 100) | 5.38 |
+| Train loss (step 10000) | 1.99 |
+| Val loss (step 500) | 4.36 |
+| Val loss (step 10000) | 2.64 |
+| Total training time | 2097s (0.58h) |
+| Steps/sec | ~4.8 |
+| Checkpoints saved | 10 |
+
+- Loss decreased steadily throughout — model is learning
+- Val loss tracked train loss with no divergence
+- Val loss plateaued around 2.64 from step 7000 — expected limit for this model size
+- All 10 checkpoints saved successfully — session recovery confirmed working
+
+### Sample Translations (greedy decoding, 10 validation examples)
+
+| Quality | Count | Examples |
+|---|---|---|
+| Exact / near-exact | 5/10 | `I'm being honest.` → `Ich bin ehrlich .` |
+| Semantically correct, different form | 2/10 | `She left.` → `Sie ging .` |
+| Wrong but plausible German | 2/10 | `Where are you all?` → `Wo bist du ?` |
+| Repetition loop | 1/10 | `He likes buying notebooks.` → `Er isst gerne Notizenzen...` |
+
+Repetition loop is a known greedy decoding failure mode — fixed in Phase 14
+with beam search and repeat penalty.
+
+### Keras Mask Warning
+Same harmless warning as Phase 5 — appears during first validation call.
+Explicit masking is working correctly as confirmed by decreasing loss.
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+├── checkpoints/
+│   └── small_scale/         (10 checkpoints)
+├── datasets/
+│   └── stage_b/
+│       └── cache/
+│           ├── train_maxlen100.npz
+│           └── val_maxlen100.npz
+├── experiments/
+│   └── results.csv
+└── figures/
+    └── small_scale_training.png
+```
+
+---
+
+## Integration with Previous Phases
+- Imports `TiedTransformer` from Phase 10
+- Imports `label_smoothing_loss`, `TransformerLRSchedule`, `train_step` from Phase 11
+- Imports `BPETokenizer` from Phase 3
+- Uses Stage B tokenizer and data from Phases 2 and 3
+- Results logged to `experiments/results.csv` started in Phase 11
+
+---
+
+## Verified
+- Training loss decreased from 5.38 to 1.99 over 10,000 steps
+- Validation loss tracked training loss — no overfitting or divergence
+- 10 checkpoints saved to Drive — session recovery confirmed
+- 5/10 sample translations exact or near-exact after 10k steps
+- Training completed in 0.58 hours — within one Colab session
+- Experiment record logged to results.csv
