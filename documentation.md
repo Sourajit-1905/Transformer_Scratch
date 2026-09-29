@@ -1413,3 +1413,132 @@ verify file size immediately after saving. Load weights with
 - 9/15 translations exact or near-exact
 - Translation files saved to Drive with correct line counts
 - `decoding.py` saved with duplicate log_softmax line removed
+
+
+# Phase 15 — BLEU Evaluation
+**File:** `15_bleu_evaluation.ipynb`
+
+## Overview
+Implements **BLEU evaluation from scratch** and evaluates the Phase 13 model's
+translation quality. Reports BLEU scores for both greedy and beam search decoding,
+documents the gap vs the paper honestly, and explains why the scores are not
+directly comparable.
+
+---
+
+## BLEU Formula
+
+```
+BLEU = BP * exp( sum_{n=1}^{4} w_n * log(p_n) )
+
+p_n : modified n-gram precision for order n
+w_n : uniform weights = 0.25 each
+BP  : brevity penalty = exp(1 - r/c) if c < r, else 1
+```
+
+Modified precision clips each n-gram count by how often it appears in the
+reference — prevents gaming by repeating common words.
+
+---
+
+## What Was Done
+
+### BLEU from Scratch
+All functions implemented manually — no NLTK, no sacrebleu:
+- `get_ngrams(tokens, n)` — extracts all n-grams from a token list
+- `modified_precision(hypotheses, references, n)` — corpus-level clipped precision
+- `brevity_penalty(hypotheses, references)` — penalises short hypotheses
+- `corpus_bleu(hypotheses, references)` — full BLEU-4 with p1-p4 breakdown
+- `sentence_bleu(hypothesis, reference)` — sentence-level with add-1 smoothing
+
+### Verification Tests
+Five tests before scoring real translations:
+- Perfect translation → BLEU = 100
+- No overlap → BLEU = 0
+- Short hypothesis → BP < 1.0 confirmed
+- Repeated word hypothesis → clipping prevents gaming
+- Partial overlap → intermediate score
+
+### Bugs Found and Fixed
+
+**Bug 1 — Wrong path**
+`PROJECT_ROOT` was set to `transformer_reproduction` but actual Drive folder
+is `Transformer_Mine`. Fixed by using the correct path.
+
+**Bug 2 — Reference count mismatch**
+Reference file had 2000 lines (full val set) but translations were 500.
+Initial fix used `[::4]` (every 4th line) which was wrong — references are
+sequential not grouped. Fixed with `[:500]` (first 500 lines).
+
+**Bug 3 — Punctuation mismatch (BLEU = 0.00)**
+References had punctuation attached (`gegangen.`) while hypotheses had spaces
+around punctuation (`gegangen .`) from BPE tokenizer output. This caused p4 = 0
+and BLEU = 0.00 despite correct translations. Fixed with `normalise_for_bleu()`
+which spaces out punctuation in references to match hypothesis format.
+
+---
+
+## Results
+
+| Metric | Greedy | Beam (k=4, alpha=0.6) |
+|---|---|---|
+| BLEU | 42.51 | 40.81 |
+| p1 | 72.81 | 72.92 |
+| p2 | 47.32 | 47.48 |
+| p3 | 34.84 | 33.90 |
+| p4 | 29.25 | 27.68 |
+| BP | 1.0000 | 1.0000 |
+
+### Why Greedy Outperforms Beam
+Beam search helps when the model is uncertain. This model is confident on
+short Tatoeba sentences — greedy's top-1 choice is usually correct. Beam
+search can hurt on short simple sentences by preferring longer paths.
+
+### Comparison with Paper
+
+| | Original Paper | Our Result |
+|---|---|---|
+| Model | Transformer Base (6L d512) | COLAB-SCALE (3L d256) |
+| Dataset | WMT14 EN-DE (4.5M pairs) | Tatoeba EN-DE (~80k pairs) |
+| Eval set | newstest2014 | Tatoeba val (500 sentences) |
+| BLEU (beam) | 27.3 | 40.81 |
+
+**These scores are not directly comparable.** Our BLEU appears higher but
+is measured on Tatoeba (short, simple sentences) vs WMT14 newstest2014
+(news domain, longer and harder sentences). Short sentences inflate BLEU
+because 4-grams cover a larger fraction of each sentence.
+
+A fair comparison requires WMT14 training and newstest2014 evaluation —
+the target of a later phase.
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+├── results/
+│   └── bleu_small_scale.json
+├── experiments/
+│   └── results.csv  (updated)
+└── bleu.py
+```
+
+---
+
+## Integration with Previous Phases
+- Uses translation files from Phase 14 (`val_greedy.txt`, `val_beam4.txt`)
+- Uses reference file generated during Phase 14 (`val_reference.txt`)
+- Results logged to `experiments/results.csv` started in Phase 11
+- `bleu.py` saved to Drive — imported in all future evaluation phases
+
+---
+
+## Verified
+- All 5 BLEU implementation tests pass
+- Translation files load correctly with matching line counts
+- Punctuation normalisation fixes p4 = 0 issue
+- Corpus BLEU scores are finite and positive for both decoding methods
+- Per-sentence analysis shows distribution and best/worst examples
+- Results saved to JSON and CSV
+- `bleu.py` saved to Drive
