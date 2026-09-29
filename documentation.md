@@ -1269,3 +1269,147 @@ transformer_reproduction/
 - 5/10 sample translations exact or near-exact after 10k steps
 - Training completed in 0.58 hours — within one Colab session
 - Experiment record logged to results.csv
+
+
+# Phase 14 — Decoding
+**File:** `14_decoding.ipynb`
+
+## Overview
+Implements **autoregressive decoding** — greedy decoding with repeat penalty
+and full beam search with length penalty. Also resolves a critical checkpoint
+persistence issue discovered when loading the Phase 13 model.
+
+---
+
+## What Was Done
+
+### Checkpoint Issue — Discovered and Resolved
+The TF checkpoint saved during Phase 13 contained only 2 variables
+(save counter and object graph) — zero model weights. Root cause:
+`TiedTransformer` has no explicit `build()` method, so Keras had unbuilt
+state when the checkpoint was created and silently wrote nothing.
+
+**Fix applied to Phase 13 training loop:**
+- Run one `training=True` forward pass before any checkpoint save to force
+  full weight registration
+- Save `.weights.h5` alongside every TF checkpoint
+- Assert h5 file size > 1 MB after every save
+- Phase 13 was retrained (35 min, same results) with h5 saving enabled
+- Final weights file: `checkpoints/small_scale/weights_final.weights.h5` (36.94 MB)
+
+**Fix applied to Phase 14 model loading:**
+- Load via `model.load_weights(WEIGHTS_PATH)` instead of TF checkpoint
+- Build model with realistic token IDs before loading weights
+- Verify top-1 prediction for `"I am a student ."` is `'Ich</w>'` (logit 11.29)
+
+---
+
+## Decoding Functions
+
+### `greedy_decode(model, src_text, tokenizer, max_len, repeat_penalty, repeat_window)`
+- Runs encoder once, then decodes one token at a time
+- At each step: takes last decoder position logits, applies repeat penalty
+  to tokens seen in last `repeat_window` steps, picks argmax
+- Stops at EOS or `max_len`
+- Repeat penalty (`-2.0` on recent tokens) prevents the repetition loops
+  seen in early testing
+
+### `beam_search(model, src_text, tokenizer, beam_size, max_len, alpha, min_len)`
+- Maintains top-k partial hypotheses at each step
+- Each beam expanded by one token, top-k kept by cumulative log probability
+- Completed hypotheses (hitting EOS) scored with length penalty
+- Length penalty from paper Section 5.4: `((5 + len) / 6)^alpha`
+- Without length penalty beam search prefers short sequences
+- Paper values: `beam_size=4`, `alpha=0.6`
+
+### Shared utilities
+- `encode_source()` — tokenises and runs encoder, returns `enc_output` and `enc_mask`
+- `decoder_mask_for()` — builds combined causal + padding mask for current decoder ids
+- `project_to_vocab()` — projects decoder output to logits using tied embedding weights
+- `length_penalty()` — computes `((5 + length) / 6)^alpha`
+
+---
+
+## Translation Results (15 validation examples)
+
+| Quality | Count | Examples |
+|---|---|---|
+| Exact or near-exact | 9/15 | `Ich bin ehrlich .`, `Tom blieb sitzen .`, `War Tom allein ?` |
+| Semantically correct, different wording | 3/15 | `Sie ist sehr begabt .` (talented→gifted) |
+| Partially correct | 2/15 | `Er mag gerne Notizbücher .` (right structure, wrong verb) |
+| Wrong | 1/15 | `Die Wan hilft .` |
+
+### Greedy vs Beam Search
+- Identical output on 13/15 examples — model is confident, beam rarely diverges
+- On the 2 differing examples, neither is clearly better
+- Beam search improvement is more pronounced on stronger models
+- Difference will be visible after Transformer Base training on WMT14
+
+---
+
+## Transformer Base Configuration (reference)
+
+| Parameter | This experiment | Paper |
+|---|---|---|
+| `beam_size` | 4 | 4 |
+| `alpha` | 0.6 | 0.6 |
+| Decoding | greedy + beam | beam only |
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+├── checkpoints/
+│   └── small_scale/
+│       ├── weights_step1000.weights.h5
+│       ├── weights_step2000.weights.h5
+│       ├── ...
+│       ├── weights_step10000.weights.h5
+│       └── weights_final.weights.h5   (36.94 MB — primary inference weights)
+├── translations/
+│   ├── val_greedy.txt
+│   ├── val_beam4.txt
+│   └── val_reference.txt
+└── decoding.py
+```
+
+---
+
+## Bug Fixed in decoding.py
+Duplicate log_softmax line in `beam_search` removed. Only the numerically
+stable version is kept:
+```python
+log_probs = logits - (
+    np.log(np.sum(np.exp(logits - logits.max()))) + logits.max()
+)
+```
+
+---
+
+## Integration with Previous Phases
+- Imports `TiedTransformer` from Phase 10
+- Imports `TransformerLRSchedule`, `create_checkpoint_manager` from Phase 11
+- Imports `BPETokenizer` from Phase 3
+- Loads weights from `weights_final.weights.h5` saved at end of Phase 13
+- Translation files saved to `translations/` — used for BLEU in Phase 15
+- `decoding.py` saved to Drive — imported in Phase 15
+
+---
+
+## Key Lesson Learned
+TF checkpoint saving is unreliable for models without an explicit `build()`
+method in Keras 3. Always save `.weights.h5` alongside TF checkpoints and
+verify file size immediately after saving. Load weights with
+`model.load_weights()` rather than `ckpt.restore()` for cross-session inference.
+
+---
+
+## Verified
+- Weights load correctly — top prediction for `"I am a student ."` is `'Ich</w>'`
+- Greedy decoding produces no repetition loops
+- Beam search produces valid German output
+- 9/15 translations exact or near-exact
+- Translation files saved to Drive with correct line counts
+- `decoding.py` saved with duplicate log_softmax line removed
