@@ -1542,3 +1542,117 @@ transformer_reproduction/
 - Per-sentence analysis shows distribution and best/worst examples
 - Results saved to JSON and CSV
 - `bleu.py` saved to Drive
+
+
+
+# Phase 16 — Attention Visualization
+**File:** `16_attention_visualization.ipynb`
+
+## Overview
+Extracts attention weights from the trained model and creates heatmaps
+showing which source tokens each target token attends to. Visualises all
+three attention types across all encoder and decoder layers.
+
+---
+
+## Three Attention Types Visualised
+
+| Type | Shape | What it shows |
+|---|---|---|
+| Encoder self-attention | `(heads, src_len, src_len)` | How source tokens relate to each other |
+| Decoder cross-attention | `(heads, tgt_len, src_len)` | Which source tokens each target token attends to (alignment) |
+| Decoder self-attention | `(heads, tgt_len, tgt_len)` | How target tokens attend to previous target tokens (causal) |
+
+---
+
+## What Was Done
+
+### Model Loading
+- Loaded from `checkpoints/small_scale/weights_final.weights.h5`
+- Same build-then-load procedure established in Phase 14
+
+### `get_attention_weights(model, src_text, tgt_text, tokenizer)`
+- Runs a full forward pass with teacher forcing (gold target as decoder input)
+- Extracts all attention weight tensors from the model's returned attention dict
+- Trims weights to actual sequence lengths (removes padding positions)
+- Converts token IDs to readable token strings for axis labels
+- Returns separate dicts for encoder self, decoder self, and decoder cross attention
+
+### `plot_attention_head(weights, row_labels, col_labels, title)`
+- Reusable heatmap function using `imshow` with Blues colormap
+- `</w>` stripped from BPE subword tokens for cleaner display
+- Colorbar added to every plot
+- Returns fig and ax for further customisation
+
+### Encoder Self-Attention (Cell 5)
+- All heads plotted for all encoder layers
+- One figure per layer, all heads side by side
+- Shows how source tokens attend to each other
+
+### Decoder Cross-Attention (Cell 6)
+- All heads plotted for all decoder layers
+- Rows = target tokens, Cols = source tokens
+- Most linguistically interpretable attention type
+- Shows rough alignment between source and target
+
+### Decoder Self-Attention (Cell 7)
+- All heads plotted for all decoder layers
+- Lower-triangular causal pattern visually confirmed
+- Causal violations numerically verified = 0 for all layers
+
+### Multi-Sentence Analysis (Cell 8)
+- Last decoder cross-attention layer, mean across heads
+- Four sentence pairs shown side by side
+- Checks whether alignment patterns are consistent across examples
+
+### Head Specialisation (Cell 9)
+- Pairwise cosine similarity between all heads in last cross-attention layer
+- Low off-diagonal similarity = heads have learned different patterns
+- High off-diagonal similarity = heads are redundant
+
+### Summary Figure (Cell 10)
+- All three attention types side by side for one sentence pair
+- One representative head per attention type
+- Saved as `attention_summary.png`
+
+---
+
+## Interpretability Caveat
+Attention weights are exploratory visualisations, not causal explanations.
+A token attending strongly to another does not mean that relationship is
+responsible for the output. Attention patterns correlate with linguistic
+structure but cannot be used to definitively explain model decisions.
+
+---
+
+## Files Saved to Drive
+
+```
+transformer_reproduction/
+└── figures/
+    └── attention/
+        ├── enc_self_encoder_layer_*.png
+        ├── dec_cross_decoder_layer_*_cross.png
+        ├── dec_self_decoder_layer_*_self.png
+        ├── cross_attention_multi_sentence.png
+        └── attention_summary.png
+```
+
+---
+
+## Integration with Previous Phases
+- Imports `TiedTransformer` from Phase 10
+- Imports `BPETokenizer` from Phase 3
+- Imports `encode_source`, `decoder_mask_for`, `project_to_vocab` from Phase 14
+- Loads weights from `weights_final.weights.h5` saved in Phase 13 (retrain)
+- Figures saved to `figures/attention/` for use in Phase 17 final report
+
+---
+
+## Verified
+- `get_attention_weights` returns non-empty dicts for all three attention types
+- Encoder self-attention heatmaps render and save for all layers
+- Cross-attention rows = target tokens, cols = source tokens confirmed
+- Causal violations = 0 for all decoder self-attention layers
+- Multi-sentence figure shows 4 panels
+- Summary figure saved to `figures/attention/attention_summary.png`
