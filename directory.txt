@@ -1,0 +1,112 @@
+Transformer_Mine/                     
+│
+├── notebooks/
+│   ├── 02_data_preprocessing.ipynb
+│   ├── 03_tokenization.ipynb
+│   ├── 04_attention.ipynb
+│   ├── 05_multi_head_attention.ipynb
+│   ├── 06_positional_encoding.ipynb
+│   ├── 07_feed_forward.ipynb
+│   ├── 08_encoder.ipynb
+│   ├── 09_decoder.ipynb
+│   ├── 10_transformer.ipynb
+│   ├── 11_training.ipynb
+│   ├── 12_toy_overfit.ipynb
+│   ├── 13_small_scale_experiment.ipynb
+│   ├── 14_decoding.ipynb
+│   ├── 15_bleu_evaluation.ipynb
+│   ├── 16_attention_visualization.ipynb
+│   └── 17_final_results.ipynb
+│
+├── checkpoints/
+│   ├── toy_overfit/
+│   │   └── ckpt-1  (toy overfit checkpoint)
+│   └── small_scale/
+│       ├── ckpt-1 through ckpt-11        (TF checkpoints — unreliable)
+│       ├── weights_step1000.weights.h5
+│       ├── weights_step2000.weights.h5
+│       ├── weights_step3000.weights.h5
+│       ├── weights_step4000.weights.h5
+│       ├── weights_step5000.weights.h5
+│       ├── weights_step6000.weights.h5
+│       ├── weights_step7000.weights.h5
+│       ├── weights_step8000.weights.h5
+│       ├── weights_step9000.weights.h5
+│       ├── weights_step10000.weights.h5
+│       └── weights_final.weights.h5      ← primary inference weights (36.94 MB)
+│
+├── datasets/
+│   ├── stage_a/
+│   │   ├── train.en
+│   │   └── train.de
+│   └── stage_b/
+│       ├── Tatoeba.de-en.en              (raw download)
+│       ├── Tatoeba.de-en.de              (raw download)
+│       ├── train.en
+│       ├── train.de
+│       ├── val.en
+│       ├── val.de
+│       ├── test.en
+│       ├── test.de
+│       └── cache/
+│           ├── train_maxlen100.npz       (encoded train arrays)
+│           └── val_maxlen100.npz         (encoded val arrays)
+│
+├── vocab/
+│   ├── stage_a/
+│   │   ├── vocab.json                    (~200 tokens)
+│   │   └── merges.json
+│   └── stage_b/
+│       ├── vocab.json                    (8,000 tokens)
+│       └── merges.json
+│
+├── figures/
+│   ├── positional_encoding.png
+│   ├── causal_mask_phase4.png
+│   ├── attention_weights_phase4.png
+│   ├── lr_schedule.png
+│   ├── toy_overfit_loss.png
+│   ├── small_scale_training.png
+│   └── attention/
+│       ├── enc_self_encoder_layer_0.png
+│       ├── enc_self_encoder_layer_1.png
+│       ├── enc_self_encoder_layer_2.png
+│       ├── dec_cross_decoder_layer_0_cross.png
+│       ├── dec_cross_decoder_layer_1_cross.png
+│       ├── dec_cross_decoder_layer_2_cross.png
+│       ├── dec_self_decoder_layer_0_self.png
+│       ├── dec_self_decoder_layer_1_self.png
+│       ├── dec_self_decoder_layer_2_self.png
+│       ├── cross_attention_multi_sentence.png
+│       └── attention_summary.png
+│
+│
+├── results/
+│   └── bleu_small_scale.json
+│
+├── experiments/
+│   └── results.csv
+│
+├── logs/                                 (empty — TensorBoard logs)
+│
+├── configs/
+│   └── dataset_config.json
+│
+├── utils:
+│   ├── attention.py                      
+│   ├── multi_head_attention.py          
+│   ├── positional_encoding.py            
+│   ├── feed_forward.py                   
+│   ├── encoder.py                        
+│   ├── decoder.py                        
+│   ├── transformer_model.py              
+│   ├── training.py                       
+│   ├── tokenizer.py                      
+│   ├── data_pipeline.py                  
+│   ├── decoding.py                       
+│   └── bleu.py                           
+│
+└── translations/
+    ├── val_greedy.txt
+    ├── val_beam4.txt
+    └── val_reference.txt

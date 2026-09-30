@@ -1,0 +1,29 @@
+{
+  "experiment": "small_scale_01",
+  "model": "COLAB-SCALE (3L, d256, h4, ff1024)",
+  "dataset": "Stage B — Tatoeba EN-DE validation (500 sentences)",
+  "n_sentences": 500,
+  "normalisation": "punctuation spaced out to match BPE tokenizer output",
+  "greedy": {
+    "BLEU": 42.51,
+    "BP": 0.9821,
+    "p1": 72.81,
+    "p2": 47.32,
+    "p3": 34.84,
+    "p4": 29.25
+  },
+  "beam_k4": {
+    "BLEU": 40.81,
+    "BP": 0.9611,
+    "p1": 72.92,
+    "p2": 47.48,
+    "p3": 33.9,
+    "p4": 27.68
+  },
+  "paper_base": {
+    "BLEU": 27.3,
+    "dataset": "WMT14 newstest2014",
+    "beam": 4
+  },
+  "comparability_note": "Our BLEU is measured on Tatoeba (short, simple sentences). Paper BLEU is on WMT14 newstest2014 (news domain). Scores are not directly comparable. A fair comparison requires WMT14 training and newstest2014 evaluation."
+}

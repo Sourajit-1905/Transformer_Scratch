@@ -1,0 +1,106 @@
+# Model weights — too large for git (36.94 MB each)
+*.h5
+*.weights.h5
+*.hdf5
+
+*.index
+*.data-00000-of-00001
+checkpoint
+
+*.npz
+
+# ── Datasets ─────────────────────────────────────────────────
+# Raw downloaded data
+datasets/stage_a/
+datasets/stage_b/
+datasets/stage_c/
+datasets/stage_d/
+
+# ── Checkpoints ──────────────────────────────────────────────
+checkpoints/
+
+# ── Python ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+
+# ── Jupyter / Colab ──────────────────────────────────────────
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+# Keep notebooks but strip outputs before committing
+# (use nbstripout or clear outputs manually)
+
+# ── Virtual environments ─────────────────────────────────────
+.env
+.venv
+env/
+venv/
+ENV/
+
+# ── OS ───────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── IDE ──────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Temporary files ──────────────────────────────────────────
+tmp/
+temp/
+*.tmp
+*.bak
+
+# ── Google Drive / Colab specific ────────────────────────────
+# These are only meaningful inside a mounted Drive session
+.colab_credentials
+drive/
+
+# ── What IS tracked (do not ignore) ─────────────────────────
+# Python source modules
+!attention.py
+!multi_head_attention.py
+!positional_encoding.py
+!feed_forward.py
+!encoder.py
+!decoder.py
+!transformer_model.py
+!training.py
+!tokenizer.py
+!data_pipeline.py
+!decoding.py
+!bleu.py
+
+# Notebooks
+!notebooks/
+
+# Configs
+!configs/dataset_config.json
+
+# README and docs
+!README.md
+!*.md
