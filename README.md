@@ -1,6 +1,3 @@
-[ **README** ] | [ **Documentation** ](./documentation.md)
-
----
 
 # Transformer from Scratch
 
@@ -11,10 +8,9 @@ Coded "Attention Is All You Need" (Vaswani et al. 2017) from scratch on a single
 
 | | |
 |---|---|
-| LinkedIn post | <!-- add link --> |
-| Live dashboard | <!-- add link --> |
-| GitHub | <!-- add link --> |
-| Colab notebooks | <!-- add link --> |
+| LinkedIn | <https://www.linkedin.com/in/sourajit-paul-347351322/> |
+| Live dashboard | <https://my-transformer.onrender.com/> |
+| GitHub | <https://github.com/Sourajit-1905/Transformer_Scratch> |
 
 ---
 
