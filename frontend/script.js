@@ -65,7 +65,7 @@ function drawLossChart() {
   const canvas = document.getElementById('loss-chart');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const W   = canvas.offsetWidth || 460;
+  const W   = canvas.parentElement.clientWidth || 460;
   const H   = 200;
 
   canvas.width  = W * window.devicePixelRatio;
@@ -98,15 +98,15 @@ function drawLossChart() {
   function tx(x) { return pad.l + (x - minX) / (maxX - minX) * pw; }
   function ty(y) { return pad.t + (1 - (y - minY) / (maxY - minY)) * ph; }
 
-  // Background Grid
-  ctx.strokeStyle = '#E2E8F0';
+  // Background Grid (Dark Theme Compatible)
+  ctx.strokeStyle = '#1e293b';
   ctx.lineWidth   = 1;
   [2,3,4,5].forEach(y => {
     ctx.beginPath();
     ctx.moveTo(pad.l, ty(y));
     ctx.lineTo(pad.l + pw, ty(y));
     ctx.stroke();
-    ctx.fillStyle = '#64748B';
+    ctx.fillStyle = '#94a3b8';
     ctx.font      = '10px IBM Plex Mono, monospace';
     ctx.textAlign = 'right';
     ctx.fillText(y.toFixed(0), pad.l - 8, ty(y) + 3);
@@ -114,7 +114,7 @@ function drawLossChart() {
 
   // X axis labels
   [0,2000,4000,6000,8000,10000].forEach(x => {
-    ctx.fillStyle = '#64748B';
+    ctx.fillStyle = '#94a3b8';
     ctx.font      = '10px IBM Plex Mono, monospace';
     ctx.textAlign = 'center';
     ctx.fillText(x === 0 ? '0' : (x/1000)+'k', tx(x), H - 8);
@@ -133,15 +133,15 @@ function drawLossChart() {
   }
 
   // Draw curves
-  drawLine(trainData, '#2563EB', 2.5);
-  drawLine(valData,   '#059669', 2, [4,3]);
+  drawLine(trainData, '#38bdf8', 2.5);
+  drawLine(valData,   '#34d399', 2, [4,3]);
 
   // Legend
-  ctx.fillStyle = '#2563EB'; ctx.fillRect(pad.l, 4, 16, 3);
-  ctx.fillStyle = '#0F172A'; ctx.font = '10px IBM Plex Sans, sans-serif'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8'; ctx.fillRect(pad.l, 4, 16, 3);
+  ctx.fillStyle = '#f8fafc'; ctx.font = '10px IBM Plex Sans, sans-serif'; ctx.textAlign = 'left';
   ctx.fillText('Train Loss', pad.l + 22, 8);
 
-  ctx.fillStyle = '#059669'; ctx.fillRect(pad.l + 100, 4, 16, 3);
+  ctx.fillStyle = '#34d399'; ctx.fillRect(pad.l + 100, 4, 16, 3);
   ctx.fillText('Val Loss', pad.l + 122, 8);
 }
 
@@ -150,7 +150,7 @@ function drawLRChart() {
   const canvas = document.getElementById('lr-chart');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const W   = canvas.offsetWidth || 460;
+  const W   = canvas.parentElement.clientWidth || 460;
   const H   = 130;
 
   canvas.width  = W * window.devicePixelRatio;
@@ -176,14 +176,14 @@ function drawLRChart() {
   function tx(i) { return pad.l + (i / (steps.length - 1)) * pw; }
   function ty(v) { return pad.t + (1 - v / (maxLR * 1.1)) * ph; }
 
-  ctx.strokeStyle = '#E2E8F0';
+  ctx.strokeStyle = '#1e293b';
   ctx.lineWidth   = 1;
   [0, maxLR * 0.5, maxLR].forEach(v => {
     ctx.beginPath();
     ctx.moveTo(pad.l, ty(v));
     ctx.lineTo(pad.l + pw, ty(v));
     ctx.stroke();
-    ctx.fillStyle = '#64748B';
+    ctx.fillStyle = '#94a3b8';
     ctx.font      = '9px IBM Plex Mono, monospace';
     ctx.textAlign = 'right';
     ctx.fillText(v.toExponential(0), pad.l - 6, ty(v) + 3);
@@ -192,7 +192,7 @@ function drawLRChart() {
   [0,2000,4000,6000,8000,10000].forEach(s => {
     const i = steps.findIndex(x => x >= s);
     if (i < 0) return;
-    ctx.fillStyle = '#64748B';
+    ctx.fillStyle = '#94a3b8';
     ctx.font      = '9px IBM Plex Mono, monospace';
     ctx.textAlign = 'center';
     ctx.fillText(s === 0 ? '0' : (s/1000)+'k', tx(i), H - 6);
@@ -200,7 +200,7 @@ function drawLRChart() {
 
   // LR curve
   ctx.beginPath();
-  ctx.strokeStyle = '#7C3AED';
+  ctx.strokeStyle = '#c084fc';
   ctx.lineWidth   = 2.2;
   lrs.forEach((v, i) => i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v)));
   ctx.stroke();
@@ -208,7 +208,7 @@ function drawLRChart() {
   // Warmup marker line
   const warmupIdx = steps.findIndex(s => s >= 2000);
   ctx.beginPath();
-  ctx.strokeStyle = '#D97706';
+  ctx.strokeStyle = '#fb923c';
   ctx.lineWidth   = 1;
   ctx.setLineDash([3,3]);
   ctx.moveTo(tx(warmupIdx), pad.t);
@@ -216,7 +216,7 @@ function drawLRChart() {
   ctx.stroke();
   ctx.setLineDash([]);
   
-  ctx.fillStyle = '#D97706';
+  ctx.fillStyle = '#fb923c';
   ctx.font      = '9px IBM Plex Mono, monospace';
   ctx.textAlign = 'center';
   ctx.fillText('Warmup (2000)', tx(warmupIdx) + 36, pad.t + 12);
@@ -290,7 +290,7 @@ function drawAttn() {
 
   // Column headers
   ctx.font      = '11px IBM Plex Mono, monospace';
-  ctx.fillStyle = '#475569';
+  ctx.fillStyle = '#94a3b8';
   ctx.textAlign = 'center';
   colLabels.forEach((lbl, j) => {
     ctx.fillText(lbl, padL + j * cellW + cellW/2, padT - 10);
@@ -299,20 +299,20 @@ function drawAttn() {
   // Cells + Row headers
   rowLabels.forEach((lbl, i) => {
     ctx.textAlign = 'right';
-    ctx.fillStyle = '#475569';
+    ctx.fillStyle = '#94a3b8';
     ctx.font      = '11px IBM Plex Mono, monospace';
     ctx.fillText(lbl, padL - 10, padT + i * cellH + cellH/2 + 4);
 
     weights[i].forEach((v, j) => {
-      // Vivid Indigo/Royal Blue Heatmap
-      const r = Math.round(37  + (239 - 37)  * (1 - v));
-      const g = Math.round(99  + (246 - 99)  * (1 - v));
-      const b = Math.round(235 + (255 - 235) * (1 - v));
+      // Dark visualizer heatmap interpolating to bright blue
+      const r = Math.round(18 + (56 - 18) * v);
+      const g = Math.round(24 + (189 - 24) * v);
+      const b = Math.round(36 + (248 - 36) * v);
       
       ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
       ctx.fillRect(padL + j * cellW + 1, padT + i * cellH + 1, cellW - 2, cellH - 2);
 
-      ctx.fillStyle = v > 0.45 ? '#FFFFFF' : '#0F172A';
+      ctx.fillStyle = v > 0.4 ? '#ffffff' : '#94a3b8';
       ctx.textAlign = 'center';
       ctx.font      = '9px IBM Plex Mono, monospace';
       ctx.fillText(v.toFixed(2), padL + j * cellW + cellW/2, padT + i * cellH + cellH/2 + 3);
