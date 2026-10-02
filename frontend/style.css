@@ -99,6 +99,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Canvas Element Display Reset */
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
 /* ── Utility Classes ────────────────────────────── */
 .wrap {
   max-width: var(--max);
@@ -199,7 +205,7 @@ nav .wrap {
 .hero {
   background: var(--hero-bg);
   color: var(--ink);
-  padding: clamp(4rem, 9vw, 7rem) 0 clamp(3.5rem, 6vw, 5rem);
+  padding: clamp(3.5rem, 8vw, 6rem) 0 clamp(3rem, 5vw, 4.5rem);
   border-bottom: 1px solid var(--border);
   position: relative;
   overflow: hidden;
@@ -326,7 +332,7 @@ nav .wrap {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2.2rem;
+  margin-bottom: 2rem;
 }
 
 .section-num {
@@ -347,16 +353,23 @@ nav .wrap {
   color: var(--ink);
 }
 
-/* ── Architecture Section ────────────────────────── */
-.arch-section {
-  padding: clamp(3rem, 6vw, 5rem) 0;
+/* ── Unified Balanced Section Padding ────────────── */
+.arch-section,
+.training-section,
+.bleu-section,
+.impl-section,
+.attn-section,
+.data-section,
+.checklist-section {
+  padding: clamp(2.5rem, 5vw, 3.5rem) 0;
   border-bottom: 1px solid var(--border);
 }
 
+/* ── Architecture Section ────────────────────────── */
 .arch-layout {
   display: grid;
   grid-template-columns: 1fr 340px;
-  gap: 3rem;
+  gap: 2.5rem;
   align-items: start;
 }
 
@@ -493,15 +506,10 @@ nav .wrap {
 }
 
 /* ── Training Section ────────────────────────────── */
-.training-section {
-  padding: clamp(3rem, 6vw, 5rem) 0;
-  border-bottom: 1px solid var(--border);
-}
-
 .training-layout {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
-  gap: 3rem;
+  gap: 2.5rem;
   align-items: start;
 }
 
@@ -509,7 +517,7 @@ nav .wrap {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1.25rem;
   box-shadow: var(--shadow-sm);
 }
 
@@ -518,23 +526,23 @@ nav .wrap {
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--ink-2);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .lr-chart-wrap {
-  margin-top: 1.5rem;
+  margin-top: 1.25rem;
 }
 
 .training-notes {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .note-block {
   border-left: 3px solid var(--primary);
   background: var(--surface);
-  padding: 1rem 1.25rem;
+  padding: 0.9rem 1.15rem;
   border-radius: 0 8px 8px 0;
   box-shadow: var(--shadow-sm);
 }
@@ -544,13 +552,13 @@ nav .wrap {
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--ink);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.25rem;
 }
 
 .note-block-body {
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   color: var(--ink-2);
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
 .note-block-body code {
@@ -563,29 +571,24 @@ nav .wrap {
 }
 
 /* ── BLEU Section ────────────────────────────────── */
-.bleu-section {
-  padding: clamp(3rem, 6vw, 5rem) 0;
-  border-bottom: 1px solid var(--border);
-}
-
 .bleu-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  gap: 2.5rem;
 }
 
 .bleu-scores {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .bleu-score-cell {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1.25rem;
   box-shadow: var(--shadow-sm);
 }
 
@@ -606,7 +609,7 @@ nav .wrap {
 
 .bleu-score-num {
   font-family: var(--mono);
-  font-size: 2.5rem;
+  font-size: 2.3rem;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -670,7 +673,7 @@ nav .wrap {
   background: var(--amber-light);
   border: 1px solid rgba(251, 146, 60, 0.3);
   border-radius: 8px;
-  padding: 1.25rem;
+  padding: 1.1rem;
   font-family: var(--sans);
   font-size: 0.82rem;
   color: #fdba74;
@@ -699,7 +702,7 @@ nav .wrap {
 }
 
 .bleu-compare-table td {
-  padding: 0.7rem 1rem;
+  padding: 0.65rem 1rem;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
 }
@@ -714,11 +717,6 @@ nav .wrap {
 }
 
 /* ── Implementation Section ──────────────────────── */
-.impl-section {
-  padding: clamp(3rem, 6vw, 5rem) 0;
-  border-bottom: 1px solid var(--border);
-}
-
 .impl-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -729,7 +727,7 @@ nav .wrap {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1.35rem;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
@@ -777,11 +775,6 @@ nav .wrap {
 .badge-amber { background: var(--amber-light); color: var(--accent-amber); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.65rem; font-weight: 600; }
 
 /* ── Attention Section ───────────────────────────── */
-.attn-section {
-  padding: clamp(3rem, 6vw, 5rem) 0;
-  border-bottom: 1px solid var(--border);
-}
-
 .attn-layout {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -795,7 +788,7 @@ nav .wrap {
 }
 
 .attn-control-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .attn-control-label {
@@ -844,7 +837,7 @@ nav .wrap {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1.25rem;
   box-shadow: var(--shadow-sm);
   overflow-x: auto;
 }
@@ -854,7 +847,7 @@ nav .wrap {
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--primary);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .attn-note {
@@ -866,11 +859,6 @@ nav .wrap {
 }
 
 /* ── Data Strategy Section ───────────────────────── */
-.data-section {
-  padding: clamp(3rem, 6vw, 5rem) 0;
-  border-bottom: 1px solid var(--border);
-}
-
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -922,22 +910,17 @@ nav .wrap {
 .status-pill.reserved { background: var(--surface-sub); color: var(--ink-2); }
 
 /* ── Checklist Section ───────────────────────────── */
-.checklist-section {
-  padding: clamp(3rem, 6vw, 5rem) 0;
-  border-bottom: 1px solid var(--border);
-}
-
 .checklist-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  gap: 2.5rem;
 }
 
 .checklist-group-title {
   font-family: var(--sans);
   font-size: 0.88rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--border);
   text-transform: uppercase;
@@ -948,7 +931,7 @@ nav .wrap {
   display: grid;
   grid-template-columns: 18px 1fr;
   gap: 0.75rem;
-  padding: 0.6rem 0;
+  padding: 0.55rem 0;
   border-bottom: 1px solid var(--border);
   align-items: start;
 }
@@ -980,8 +963,8 @@ nav .wrap {
 }
 
 .checklist-card {
-  margin-top: 2rem;
-  padding: 1.25rem;
+  margin-top: 1.5rem;
+  padding: 1.15rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -993,7 +976,7 @@ nav .wrap {
 footer {
   background: var(--surface-dark);
   color: var(--ink-2);
-  padding: 3rem 0;
+  padding: 2.5rem 0;
   border-top: 1px solid var(--border);
 }
 
