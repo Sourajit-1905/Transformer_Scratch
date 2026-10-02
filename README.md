@@ -1,6 +1,8 @@
+[ **README** ] | [ **Documentation** ](./documentation.md)
+
+---
+
 # Transformer from Scratch
-
-
 
 Coded "Attention Is All You Need" (Vaswani et al. 2017) from scratch on a single Google Colab GPU. No pretrained models. No library attention layers.
 ---
@@ -105,5 +107,3 @@ Transformer_Mine/
 }
 ```
 
-
-> **[View Full Documentation](documentation.md)**
