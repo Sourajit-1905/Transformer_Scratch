@@ -4,34 +4,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Transformer from Scratch</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMxMjE4MjQiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTcgMTZDNyAxMiAxNyAxMiAxNyA4IiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIGZpbGw9Im5vbmUiLz48L3N2Zz4=">
+  <link rel="shortcut icon" href="favicon.svg?v=2" type="image/svg+xml">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <div class="wrap">
-    <a href="#" class="nav-id mono">
-      <span class="nav-dot"></span>transformer-from-scratch
+    <a href="#" class="nav-id">
+      <svg class="nav-logo-svg" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
+        <path d="M7 16C7 12 17 12 17 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" />
+      </svg>
+      <span>Transformer from Scratch</span>
     </a>
     <ul class="nav-links">
-      <li><a href="#architecture">architecture</a></li>
-      <li><a href="#training">training</a></li>
-      <li><a href="#bleu">bleu</a></li>
-      <li><a href="#implementation">implementation</a></li>
-      <li><a href="#attention">attention</a></li>
-      <li><a href="#checklist">checklist</a></li>
+      <li><a href="#arch">Architecture</a></li>
+      <li><a href="#training">Training</a></li>
+      <li><a href="#bleu">BLEU Scores</a></li>
+      <li><a href="#impl">Implementation</a></li>
     </ul>
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
   <div class="wrap">
-    <p class="hero-eyebrow mono"><span class="badge-tag">Vaswani et al. 2017</span> Google Colab reproduction</p>
+    <p class="hero-eyebrow mono"><span class="badge-tag">Vaswani et al. 2017</span>Transformer Architecture</p>
     <h1 class="hero-title">
       Attention Is All<br>
       <span class="gradient-text">You Need</span><br>
@@ -63,7 +67,6 @@
   </div>
 </section>
 
-<!-- STAT STRIP -->
 <section class="stats" id="stats">
   <div class="wrap">
     <div class="stats-grid">
@@ -87,7 +90,6 @@
   </div>
 </section>
 
-<!-- ARCHITECTURE -->
 <section class="arch-section" id="architecture">
   <div class="wrap">
     <div class="section-header">
@@ -159,7 +161,6 @@
   </div>
 </section>
 
-<!-- TRAINING -->
 <section class="training-section" id="training">
   <div class="wrap">
     <div class="section-header">
@@ -226,7 +227,6 @@
   </div>
 </section>
 
-<!-- BLEU -->
 <section class="bleu-section" id="bleu">
   <div class="wrap">
     <div class="section-header">

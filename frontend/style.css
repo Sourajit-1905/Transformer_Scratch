@@ -48,6 +48,48 @@ html {
   --shadow-md:     0 4px 12px rgba(0, 0, 0, 0.6);
 }
 
+/* ── Custom Scrollbar Styling ──────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--surface);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+  border: 1px solid var(--surface);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary-glow);
+}
+
+.table-wrap::-webkit-scrollbar-track,
+.attn-canvas-wrap::-webkit-scrollbar-track {
+  background: var(--surface-dark);
+}
+
+.table-wrap::-webkit-scrollbar-thumb,
+.attn-canvas-wrap::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
+.table-wrap::-webkit-scrollbar-thumb:hover,
+.attn-canvas-wrap::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
 body {
   background: var(--base);
   color: var(--ink);
@@ -79,7 +121,7 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── Sticky Dark Header Nav ─────────────────────── */
+/* ── Sticky Dark Header Nav & Custom SVG Logo ───── */
 nav {
   position: sticky;
   top: 0;
@@ -101,20 +143,36 @@ nav .wrap {
 .nav-id {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-family: var(--mono);
-  font-size: 0.82rem;
+  gap: 0.65rem;
+  font-family: var(--sans);
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--ink);
   text-decoration: none;
+  transition: opacity 0.2s ease;
 }
 
-.nav-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--primary);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--primary);
+.nav-id:hover {
+  opacity: 0.9;
+}
+
+/* Custom SVG Logo Styling */
+.nav-logo-svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px var(--primary-glow));
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.nav-id:hover .nav-logo-svg {
+  transform: rotate(180deg) scale(1.05);
+  filter: drop-shadow(0 0 10px var(--primary));
 }
 
 .nav-links {
