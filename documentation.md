@@ -53,7 +53,6 @@ This progression ensures that problems are identified early, before committing s
 
 
 # Phase 3 — Tokenization
-**File:** `03_tokenization.ipynb`
 
 ## Overview
 Implements a Byte Pair Encoding (BPE) tokenizer from scratch in pure Python.
@@ -108,21 +107,6 @@ No Hugging Face, no SentencePiece, no external tokenization libraries.
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-├── vocab/
-│   ├── stage_a/
-│   │   ├── vocab.json
-│   │   └── merges.json
-│   └── stage_b/
-│       ├── vocab.json
-│       └── merges.json
-└── tokenizer.py
-```
-
----
 
 ## Integration with Phase 2
 `build_tf_dataset()` from Phase 2 accepts any `encode_fn(text) → list[int]`.
@@ -130,15 +114,9 @@ Phase 3 passes `tokenizer.encode` as that function — no other changes needed.
 
 ---
 
-## Verified
-- Round-trip `encode → decode` produces original text
-- Reload from disk produces identical IDs
-- Unknown words segmented to characters, not `<unk>`
-- BOS at `decoder_input` position 0 confirmed
-- All token IDs within valid vocabulary range
+
 
 # Phase 4 — Attention From Scratch
-**File:** `04_attention.ipynb`
 
 ## Overview
 Implements **Scaled Dot-Product Attention from scratch** — the core mathematical
@@ -204,36 +182,13 @@ Five explicit steps:
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-├── attention.py
-└── figures/
-    ├── attention_weights_phase4.png
-    └── causal_mask_phase4.png
-```
-
----
-
 ## Integration with Previous Phases
 - Uses `create_padding_mask()` and `create_look_ahead_mask()` from Phase 2
 - Uses Stage A `BPETokenizer` from Phase 3 for the visualisation example
 - `attention.py` saved to Drive — imported directly in Phase 5
 
----
-
-## Verified
-- All tensor shapes correct for Transformer Base dimensions
-- Softmax weights sum to 1.0 (tolerance < 1e-5)
-- Masked positions have weight < 1e-7
-- Scaling reduces variance ~64x as expected
-- Gradients flow through Q, K, and V
-- No causal violations in look-ahead mask
-- `attention.py` reloads and passes final shape check
 
 # Phase 5 — Multi-Head Attention
-**File:** `05_multi_head_attention.ipynb`
 
 ## Overview
 Implements **Multi-Head Attention from scratch** as a `tf.keras.layers.Layer`.
@@ -308,33 +263,15 @@ All three modes used in the Transformer verified explicitly:
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-└── multi_head_attention.py
-```
-
----
 
 ## Integration with Previous Phases
 - Imports `scaled_dot_product_attention` from `attention.py` (Phase 4)
 - Uses `create_padding_mask`, `create_look_ahead_mask`, `create_decoder_mask` from `data_pipeline.py` (Phase 2)
 - `multi_head_attention.py` saved to Drive — imported directly in Phases 6, 7, 8
 
----
 
-## Verified
-- All 4 shape tests pass at Transformer Base dimensions
-- Parameter count matches expected `1,048,576`
-- Heads produce distinct attention patterns
-- No causal violations across any head
-- All weight matrices receive gradients
-- All three attention modes produce correct output shapes
-- `multi_head_attention.py` reloads and passes final shape check
 
 # Phase 6 — Positional Encoding
-**File:** `06_positional_encoding.ipynb`
 
 ## Overview
 Implements the **Sinusoidal Positional Encoding** exactly as described in
@@ -421,35 +358,15 @@ Where:
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-├── positional_encoding.py
-└── figures/
-    └── positional_encoding.png
-```
-
----
 
 ## Integration with Previous Phases
 - `positional_encoding.py` saved to Drive — imported directly in Phase 8 (Encoder)
 - No dependencies on Phase 4 or Phase 5 — standalone layer
 - Will be placed immediately after the embedding layer in both encoder and decoder
 
----
 
-## Verified
-- All 6 shape/value sub-tests pass
-- All 3 manual formula cross-checks match to `< 1e-6`
-- Figure renders and saves with clearly visible sinusoidal pattern
-- No duplicate position encodings in 500-position sample
-- Relative position reconstruction error `< 1e-5`
-- Gradient = `sqrt(512)` confirmed
-- `positional_encoding.py` reloads and passes all assertions
 
 # Phase 7 — Feed-Forward Network
-**File:** `07_feed_forward.ipynb`
 
 ## Overview
 Implements the **Position-wise Feed-Forward Network (FFN)** from Section 3.3
@@ -512,14 +429,6 @@ using the same weights.
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-└── feed_forward.py
-```
-
----
 
 ## Integration with Previous Phases
 - No dependencies on Phase 4, 5, or 6 — standalone layer
@@ -527,19 +436,8 @@ transformer_reproduction/
   Phase 9 (Decoder)
 - Used as the second sub-layer in every encoder and decoder layer
 
----
-
-## Verified
-- Output shape correct for all tested sequence lengths
-- Parameter count matches expected `2,099,712`
-- ReLU removes all negative intermediate activations
-- Positions confirmed to be processed independently
-- Inference is deterministic, training is stochastic
-- All gradients non-None and non-zero
-- `feed_forward.py` reloads and passes shape and parameter count assertions
 
 # Phase 8 — Encoder
-**File:** `08_encoder.ipynb`
 
 ## Overview
 Assembles the **Encoder Layer** and full **Encoder Stack** by combining
@@ -630,14 +528,6 @@ Full breakdown per layer:
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-└── encoder.py
-```
-
----
 
 ## Integration with Previous Phases
 - Imports `MultiHeadAttention` from Phase 5
@@ -646,19 +536,8 @@ transformer_reproduction/
 - Imports `create_padding_mask` from Phase 2
 - `encoder.py` saved to Drive — imported directly in Phase 10 (Transformer)
 
----
-
-## Verified
-- Encoder output shape correct at Transformer Base dimensions
-- All 6 layer attention weight shapes correct
-- LayerNorm statistics within expected range
-- PAD positions do not influence non-PAD encoder output
-- All parameters receive valid gradients
-- `encoder.py` reloads, output shape `(1, 8, 512)`, 6 attention weight dicts returned
-
 
 # Phase 9 — Decoder
-**File:** `09_decoder.ipynb`
 
 ## Overview
 Implements the **Decoder Layer** and full **Decoder Stack**. More complex than
@@ -752,14 +631,6 @@ decoder output: (batch, tgt_len, 512)
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-└── decoder.py
-```
-
----
 
 ## Integration with Previous Phases
 - Imports `MultiHeadAttention` from Phase 5
@@ -769,19 +640,8 @@ transformer_reproduction/
 - Imports mask functions from Phase 2
 - `decoder.py` saved to Drive — imported directly in Phase 10 (Transformer)
 
----
-
-## Verified
-- Decoder output shape correct at Transformer Base dimensions
-- Self and cross attention weight shapes correct for all 6 layers
-- Zero causal violations across all layers, heads, and batch items
-- Encoder PAD positions correctly ignored in cross-attention
-- Full encoder-decoder pipeline runs end-to-end without errors
-- All parameters receive valid gradients
-- `decoder.py` reloads, output shape `(1, 8, 512)`, 12 attention entries (6 layers x self + cross)
 
 # Phase 10 — Complete Transformer
-**File:** `10_transformer.ipynb`
 
 ## Overview
 Assembles the **complete Transformer model** by connecting the Encoder and Decoder
@@ -861,14 +721,6 @@ Configuration table printed comparing all values against the paper.
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-└── transformer_model.py
-```
-
----
 
 ## Integration with Previous Phases
 - Imports `Encoder` from Phase 8 (`encoder.py`)
@@ -886,17 +738,8 @@ Encoder and decoder use separate embedding layers when `src_vocab != tgt_vocab`.
 When using a shared BPE vocabulary (`src_vocab == tgt_vocab`), this matches
 the paper exactly.
 
----
-
-## Verified
-- Logits shape `(batch, tgt_len, vocab_size)` correct
-- Softmax over logits sums to `1.0` per position
-- Parameter count printed with full encoder/decoder breakdown
-- Zero None gradients, zero NaN gradients across full model
-- `transformer_model.py` reloads, logits shape `(1, 7, 8000)` confirmed
 
 # Phase 11 — Training Loss and Loop
-**File:** `11_training.ipynb`
 
 ## Overview
 Implements the complete **training infrastructure** — label smoothing loss,
@@ -985,18 +828,6 @@ Adam with paper values:
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-├── training.py
-├── experiments/
-│   └── results.csv
-└── figures/
-    └── lr_schedule.png
-```
-
----
 
 ## Integration with Previous Phases
 - Imports `TiedTransformer` from Phase 10
@@ -1004,18 +835,8 @@ transformer_reproduction/
 - Imports `BPETokenizer` from Phase 3
 - `training.py` saved to Drive — imported in all subsequent training phases
 
----
-
-## Verified
-- All 3 loss function tests pass
-- Peak learning rate matches formula at step 4000
-- LR schedule plot shows warmup and decay correctly
-- 100 smoke test steps all produce finite loss
-- Loss trends downward over 100 steps
-- `training.py` saves without errors
 
 # Phase 12 — Toy Overfitting
-**File:** `12_toy_overfit.ipynb`
 
 ## Overview
 Verifies the entire pipeline by **deliberately overfitting on 20 handmade
@@ -1122,20 +943,6 @@ Five checks — all passed:
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-├── checkpoints/
-│   └── toy_overfit/
-├── experiments/
-│   └── results.csv
-└── figures/
-    └── toy_overfit_loss.png
-```
-
----
-
 ## Integration with Previous Phases
 - Imports `TiedTransformer` from Phase 10
 - Imports `label_smoothing_loss`, `TransformerLRSchedule` from Phase 11
@@ -1143,18 +950,9 @@ transformer_reproduction/
 - Imports `BPETokenizer` from Phase 3
 - Uses Stage A tokenizer and data from Phases 2 and 3
 
----
 
-## Verified
-- 20/20 exact prediction matches on training data
-- All losses finite throughout training
-- Loss decreased from initial value
-- No NaN predictions
-- All 5 Go/No-Go checks passed
-- Pipeline confirmed correct — cleared to proceed to Phase 13
 
 # Phase 13 — Small Scale Experiment
-**File:** `13_small_scale_experiment.ipynb`
 
 ## Overview
 Trains a **COLAB-SCALE Transformer on real translation data (Stage B — Tatoeba EN-DE)**.
@@ -1234,24 +1032,6 @@ Explicit masking is working correctly as confirmed by decreasing loss.
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-├── checkpoints/
-│   └── small_scale/         (10 checkpoints)
-├── datasets/
-│   └── stage_b/
-│       └── cache/
-│           ├── train_maxlen100.npz
-│           └── val_maxlen100.npz
-├── experiments/
-│   └── results.csv
-└── figures/
-    └── small_scale_training.png
-```
-
----
 
 ## Integration with Previous Phases
 - Imports `TiedTransformer` from Phase 10
@@ -1260,19 +1040,9 @@ transformer_reproduction/
 - Uses Stage B tokenizer and data from Phases 2 and 3
 - Results logged to `experiments/results.csv` started in Phase 11
 
----
-
-## Verified
-- Training loss decreased from 5.38 to 1.99 over 10,000 steps
-- Validation loss tracked training loss — no overfitting or divergence
-- 10 checkpoints saved to Drive — session recovery confirmed
-- 5/10 sample translations exact or near-exact after 10k steps
-- Training completed in 0.58 hours — within one Colab session
-- Experiment record logged to results.csv
 
 
 # Phase 14 — Decoding
-**File:** `14_decoding.ipynb`
 
 ## Overview
 Implements **autoregressive decoding** — greedy decoding with repeat penalty
@@ -1357,25 +1127,6 @@ state when the checkpoint was created and silently wrote nothing.
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-├── checkpoints/
-│   └── small_scale/
-│       ├── weights_step1000.weights.h5
-│       ├── weights_step2000.weights.h5
-│       ├── ...
-│       ├── weights_step10000.weights.h5
-│       └── weights_final.weights.h5   (36.94 MB — primary inference weights)
-├── translations/
-│   ├── val_greedy.txt
-│   ├── val_beam4.txt
-│   └── val_reference.txt
-└── decoding.py
-```
-
----
 
 ## Bug Fixed in decoding.py
 Duplicate log_softmax line in `beam_search` removed. Only the numerically
@@ -1404,19 +1155,9 @@ method in Keras 3. Always save `.weights.h5` alongside TF checkpoints and
 verify file size immediately after saving. Load weights with
 `model.load_weights()` rather than `ckpt.restore()` for cross-session inference.
 
----
-
-## Verified
-- Weights load correctly — top prediction for `"I am a student ."` is `'Ich</w>'`
-- Greedy decoding produces no repetition loops
-- Beam search produces valid German output
-- 9/15 translations exact or near-exact
-- Translation files saved to Drive with correct line counts
-- `decoding.py` saved with duplicate log_softmax line removed
 
 
 # Phase 15 — BLEU Evaluation
-**File:** `15_bleu_evaluation.ipynb`
 
 ## Overview
 Implements **BLEU evaluation from scratch** and evaluates the Phase 13 model's
@@ -1513,18 +1254,6 @@ the target of a later phase.
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-├── results/
-│   └── bleu_small_scale.json
-├── experiments/
-│   └── results.csv  (updated)
-└── bleu.py
-```
-
----
 
 ## Integration with Previous Phases
 - Uses translation files from Phase 14 (`val_greedy.txt`, `val_beam4.txt`)
@@ -1532,21 +1261,10 @@ transformer_reproduction/
 - Results logged to `experiments/results.csv` started in Phase 11
 - `bleu.py` saved to Drive — imported in all future evaluation phases
 
----
-
-## Verified
-- All 5 BLEU implementation tests pass
-- Translation files load correctly with matching line counts
-- Punctuation normalisation fixes p4 = 0 issue
-- Corpus BLEU scores are finite and positive for both decoding methods
-- Per-sentence analysis shows distribution and best/worst examples
-- Results saved to JSON and CSV
-- `bleu.py` saved to Drive
 
 
 
 # Phase 16 — Attention Visualization
-**File:** `16_attention_visualization.ipynb`
 
 ## Overview
 Extracts attention weights from the trained model and creates heatmaps
@@ -1625,20 +1343,6 @@ structure but cannot be used to definitively explain model decisions.
 
 ---
 
-## Files Saved to Drive
-
-```
-transformer_reproduction/
-└── figures/
-    └── attention/
-        ├── enc_self_encoder_layer_*.png
-        ├── dec_cross_decoder_layer_*_cross.png
-        ├── dec_self_decoder_layer_*_self.png
-        ├── cross_attention_multi_sentence.png
-        └── attention_summary.png
-```
-
----
 
 ## Integration with Previous Phases
 - Imports `TiedTransformer` from Phase 10
@@ -1647,12 +1351,3 @@ transformer_reproduction/
 - Loads weights from `weights_final.weights.h5` saved in Phase 13 (retrain)
 - Figures saved to `figures/attention/` for use in Phase 17 final report
 
----
-
-## Verified
-- `get_attention_weights` returns non-empty dicts for all three attention types
-- Encoder self-attention heatmaps render and save for all layers
-- Cross-attention rows = target tokens, cols = source tokens confirmed
-- Causal violations = 0 for all decoder self-attention layers
-- Multi-sentence figure shows 4 panels
-- Summary figure saved to `figures/attention/attention_summary.png`

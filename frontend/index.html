@@ -1,581 +1,683 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Transformer from Scratch</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMxMjE4MjQiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTcgMTZDNyAxMiAxNyAxMiAxNyA4IiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIGZpbGw9Im5vbmUiLz48L3N2Zz4=">
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMxMjE4MjQiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTcgMTZDNyAxMiAxNyAxMiAxNyA4IiBzdHJva2U9IiMzOGJkZjgiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIGZpbGw9Im5vbmUiLz48L3N2Zz4=">
   <link rel="shortcut icon" href="favicon.svg?v=2" type="image/svg+xml">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<nav>
-  <div class="wrap">
-    <a href="#" class="nav-id">
-      <svg class="nav-logo-svg" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
-        <path d="M7 16C7 12 17 12 17 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" />
-      </svg>
-      <span>Transformer from Scratch</span>
-    </a>
-    <ul class="nav-links">
-      <li><a href="#architecture">Architecture</a></li>
-      <li><a href="#training">Training</a></li>
-      <li><a href="#bleu">BLEU Scores</a></li>
-      <li><a href="#implementation">Implementation</a></li>
-    </ul>
-  </div>
-</nav>
+  <nav>
+    <div class="wrap">
+      <a href="#" class="nav-id">
+        <svg class="nav-logo-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
+          <path d="M7 16C7 12 17 12 17 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" />
+        </svg>
+        <span>Transformer from Scratch</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#training">Training</a></li>
+        <li><a href="#bleu">BLEU Scores</a></li>
+        <li><a href="#implementation">Implementation</a></li>
+      </ul>
+    </div>
+  </nav>
 
-<section class="hero">
-  <div class="wrap">
-    <p class="hero-eyebrow mono"><span class="badge-tag">Vaswani et al. 2017</span>Transformer Architecture</p>
-    <h1 class="hero-title">
-      Attention Is All<br>
-      <span class="gradient-text">You Need</span><br>
-      from scratch
-    </h1>
-    <p class="hero-sub">
-      An independent implementation of the Transformer architecture in
-      TensorFlow, built without pretrained models or library attention layers.
-      Trained on a single Colab GPU under real session constraints.
-    </p>
-    <div class="hero-meta">
-      <div class="hero-meta-item">
-        <strong>TensorFlow 2</strong>
-        framework
-      </div>
-      <div class="hero-meta-item">
-        <strong>Google Colab</strong>
-        hardware
-      </div>
-      <div class="hero-meta-item">
-        <strong>Tatoeba EN-DE</strong>
-        training data
-      </div>
-      <div class="hero-meta-item">
-        <strong>17 phases</strong>
-        implementation
+  <section class="hero">
+    <div class="wrap">
+      <p class="hero-eyebrow mono"><span class="badge-tag">Vaswani et al. 2017</span>Transformer Architecture</p>
+      <h1 class="hero-title">
+        Attention Is All<br>
+        <span class="gradient-text">You Need</span><br>
+        from scratch
+      </h1>
+      <p class="hero-sub">
+        An independent implementation of the Transformer architecture in
+        TensorFlow, built without pretrained models or library attention layers.
+        Trained on a single Colab GPU under real session constraints.
+      </p>
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <strong>TensorFlow 2</strong>
+          framework
+        </div>
+        <div class="hero-meta-item">
+          <strong>Google Colab</strong>
+          hardware
+        </div>
+        <div class="hero-meta-item">
+          <strong>Tatoeba EN-DE</strong>
+          training data
+        </div>
+        <div class="hero-meta-item">
+          <strong>17 phases</strong>
+          implementation
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="stats" id="stats">
-  <div class="wrap">
-    <div class="stats-grid">
-      <div class="stat-cell">
-        <div class="stat-number mono text-blue">9.6M</div>
-        <div class="stat-label mono">trainable parameters<br>(COLAB-SCALE model)</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-number mono text-purple">10k</div>
-        <div class="stat-label mono">training steps<br>~35 minutes on Colab</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-number mono text-emerald">42.51</div>
-        <div class="stat-label mono">BLEU score<br>greedy / Tatoeba val</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-number mono text-amber">12</div>
-        <div class="stat-label mono">Python modules<br>built from scratch</div>
+  <section class="stats" id="stats">
+    <div class="wrap">
+      <div class="stats-grid">
+        <div class="stat-cell">
+          <div class="stat-number mono text-blue">9.6M</div>
+          <div class="stat-label mono">trainable parameters<br>(COLAB-SCALE model)</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-number mono text-purple">10k</div>
+          <div class="stat-label mono">training steps<br>~35 minutes on Colab</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-number mono text-emerald">42.51</div>
+          <div class="stat-label mono">BLEU score<br>greedy / Tatoeba val</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-number mono text-amber">12</div>
+          <div class="stat-label mono">Python modules<br>built from scratch</div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="arch-section" id="architecture">
-  <div class="wrap">
-    <div class="section-header">
-      <span class="section-num mono">01</span>
-      <span class="section-title mono">Architecture</span>
-    </div>
-    <div class="arch-layout">
-      <div>
-        <div class="arch-diagram">
-          <div class="arch-cols">
-            <div>
-              <div class="arch-col-label mono">Encoder Stack</div>
-              <div class="arch-block" onclick="showInfo('embed-src')" id="blk-embed-src" tabindex="0" role="button">Source Embedding</div>
-              <div class="arch-connector"></div>
-              <div class="arch-block" onclick="showInfo('pe')" id="blk-pe" tabindex="0" role="button">Positional Encoding</div>
-              <div class="arch-connector"></div>
-              <div class="arch-block block-stack" onclick="showInfo('enc-layer')" id="blk-enc-layer" tabindex="0" role="button">
-                <strong>Encoder Layer x 6</strong>
-                <span class="block-sub">
-                  Self-Attn + Add&amp;Norm<br>
-                  FFN + Add&amp;Norm
-                </span>
+  <section class="arch-section" id="architecture">
+    <div class="wrap">
+      <div class="section-header">
+        <span class="section-num mono">01</span>
+        <span class="section-title mono">Architecture</span>
+      </div>
+      <div class="arch-layout">
+        <div>
+          <div class="arch-diagram">
+            <div class="arch-cols">
+              <div>
+                <div class="arch-col-label mono">Encoder Stack</div>
+                <div class="arch-block" onclick="showInfo('embed-src')" id="blk-embed-src" tabindex="0" role="button">
+                  Source Embedding</div>
+                <div class="arch-connector"></div>
+                <div class="arch-block" onclick="showInfo('pe')" id="blk-pe" tabindex="0" role="button">Positional
+                  Encoding</div>
+                <div class="arch-connector"></div>
+                <div class="arch-block block-stack" onclick="showInfo('enc-layer')" id="blk-enc-layer" tabindex="0"
+                  role="button">
+                  <strong>Encoder Layer x 6</strong>
+                  <span class="block-sub">
+                    Self-Attn + Add&amp;Norm<br>
+                    FFN + Add&amp;Norm
+                  </span>
+                </div>
+                <div class="arch-connector"></div>
+                <div class="arch-block highlight" onclick="showInfo('enc-out')" id="blk-enc-out" tabindex="0"
+                  role="button">Encoder Output</div>
               </div>
-              <div class="arch-connector"></div>
-              <div class="arch-block highlight" onclick="showInfo('enc-out')" id="blk-enc-out" tabindex="0" role="button">Encoder Output</div>
-            </div>
-            <div>
-              <div class="arch-col-label mono">Decoder Stack</div>
-              <div class="arch-block" onclick="showInfo('embed-tgt')" id="blk-embed-tgt" tabindex="0" role="button">Target Embedding</div>
-              <div class="arch-connector"></div>
-              <div class="arch-block" onclick="showInfo('pe')" id="blk-pe2" tabindex="0" role="button">Positional Encoding</div>
-              <div class="arch-connector"></div>
-              <div class="arch-block block-stack" onclick="showInfo('dec-layer')" id="blk-dec-layer" tabindex="0" role="button">
-                <strong>Decoder Layer x 6</strong>
-                <span class="block-sub">
-                  Masked Self-Attn<br>
-                  Cross-Attn<br>
-                  FFN + Add&amp;Norm
-                </span>
+              <div>
+                <div class="arch-col-label mono">Decoder Stack</div>
+                <div class="arch-block" onclick="showInfo('embed-tgt')" id="blk-embed-tgt" tabindex="0" role="button">
+                  Target Embedding</div>
+                <div class="arch-connector"></div>
+                <div class="arch-block" onclick="showInfo('pe')" id="blk-pe2" tabindex="0" role="button">Positional
+                  Encoding</div>
+                <div class="arch-connector"></div>
+                <div class="arch-block block-stack" onclick="showInfo('dec-layer')" id="blk-dec-layer" tabindex="0"
+                  role="button">
+                  <strong>Decoder Layer x 6</strong>
+                  <span class="block-sub">
+                    Masked Self-Attn<br>
+                    Cross-Attn<br>
+                    FFN + Add&amp;Norm
+                  </span>
+                </div>
+                <div class="arch-connector"></div>
+                <div class="arch-block" onclick="showInfo('proj')" id="blk-proj" tabindex="0" role="button">Linear +
+                  Softmax</div>
+                <div class="arch-connector"></div>
+                <div class="arch-block highlight" onclick="showInfo('logits')" id="blk-logits" tabindex="0"
+                  role="button">Logits (vocab)</div>
               </div>
-              <div class="arch-connector"></div>
-              <div class="arch-block" onclick="showInfo('proj')" id="blk-proj" tabindex="0" role="button">Linear + Softmax</div>
-              <div class="arch-connector"></div>
-              <div class="arch-block highlight" onclick="showInfo('logits')" id="blk-logits" tabindex="0" role="button">Logits (vocab)</div>
             </div>
           </div>
+          <p style="font-family: var(--mono); font-size: 0.68rem; color: var(--ink-2); margin-top: 0.75rem;">
+            💡 Click any block above to inspect specification details.
+          </p>
         </div>
-        <p style="font-family: var(--mono); font-size: 0.68rem; color: var(--ink-2); margin-top: 0.75rem;">
-          💡 Click any block above to inspect specification details.
-        </p>
-      </div>
 
-      <div class="arch-info" id="arch-info-panel">
-        <div class="arch-info-title mono" id="arch-info-title">Select a block</div>
-        <p class="arch-info-body" id="arch-info-body">
-          Click any component in the diagram to see the paper specification and our implementation details.
-        </p>
-        <div class="arch-info-spec mono" id="arch-info-spec">
-          <span class="key">d_model</span>  512<br>
-          <span class="key">num_heads</span> 8<br>
-          <span class="key">d_k = d_v</span> 64<br>
-          <span class="key">d_ff</span>      2048<br>
-          <span class="key">N (layers)</span> 6<br>
-          <span class="key">dropout</span>   0.1<br>
-          <span class="key">norm</span>      POST-LN
+        <div class="arch-info" id="arch-info-panel">
+          <div class="arch-info-title mono" id="arch-info-title">Select a block</div>
+          <p class="arch-info-body" id="arch-info-body">
+            Click any component in the diagram to see the paper specification and our implementation details.
+          </p>
+          <div class="arch-info-spec mono" id="arch-info-spec">
+            <span class="key">d_model</span> 512<br>
+            <span class="key">num_heads</span> 8<br>
+            <span class="key">d_k = d_v</span> 64<br>
+            <span class="key">d_ff</span> 2048<br>
+            <span class="key">N (layers)</span> 6<br>
+            <span class="key">dropout</span> 0.1<br>
+            <span class="key">norm</span> POST-LN
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="training-section" id="training">
-  <div class="wrap">
-    <div class="section-header">
-      <span class="section-num mono">02</span>
-      <span class="section-title mono">Training Dynamics</span>
-    </div>
-    <div class="training-layout">
-      <div>
-        <div class="chart-container">
-          <div class="chart-title mono">Loss vs training step (COLAB-SCALE, Tatoeba EN-DE)</div>
-          <canvas id="loss-chart" height="200"></canvas>
-        </div>
-        <div class="lr-chart-wrap">
+  <section class="training-section" id="training">
+    <div class="wrap">
+      <div class="section-header">
+        <span class="section-num mono">02</span>
+        <span class="section-title mono">Training Dynamics</span>
+      </div>
+      <div class="training-layout">
+        <div>
           <div class="chart-container">
-            <div class="chart-title mono">Learning rate schedule (d_model=256, warmup=2000)</div>
-            <canvas id="lr-chart" height="130"></canvas>
+            <div class="chart-title mono">Loss vs training step (COLAB-SCALE, Tatoeba EN-DE)</div>
+            <canvas id="loss-chart" height="200"></canvas>
           </div>
-        </div>
-      </div>
-      <div class="training-notes">
-        <div class="note-block">
-          <div class="note-block-title mono">Configuration</div>
-          <div class="note-block-body">
-            COLAB-SCALE: 3 layers, <code>d_model=256</code>, 4 heads, <code>d_ff=1024</code>.
-            The Transformer Base architecture (6L d512) is fully implemented but
-            requires more compute than a single Colab session allows.
-          </div>
-        </div>
-        <div class="note-block">
-          <div class="note-block-title mono">Optimizer</div>
-          <div class="note-block-body">
-            Adam with paper values: <code>beta_1=0.9</code>, <code>beta_2=0.98</code>,
-            <code>epsilon=1e-9</code>. Learning rate follows the original warmup
-            and inverse square root decay schedule from Section 5.3.
-          </div>
-        </div>
-        <div class="note-block">
-          <div class="note-block-title mono">Label smoothing</div>
-          <div class="note-block-body">
-            <code>epsilon=0.1</code> as per Section 5.4. Implemented manually
-            with explicit PAD masking. The theoretical minimum loss with
-            smoothing is not zero, so accuracy was used as the convergence
-            metric during the toy overfit test.
-          </div>
-        </div>
-        <div class="note-block">
-          <div class="note-block-title mono">Session recovery</div>
-          <div class="note-block-body">
-            Checkpoints saved every 1000 steps in both TF format and
-            <code>.weights.h5</code>. TF checkpoint restore was found unreliable
-            across sessions due to a Keras build ordering issue. h5 weights
-            are the primary recovery mechanism.
-          </div>
-        </div>
-        <div class="note-block">
-          <div class="note-block-title mono">Result</div>
-          <div class="note-block-body">
-            Train loss 5.38 to 2.14 over 10,000 steps in 35 minutes.
-            Validation loss 4.36 to 2.63, tracking train loss with no divergence.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="bleu-section" id="bleu">
-  <div class="wrap">
-    <div class="section-header">
-      <span class="section-num mono">03</span>
-      <span class="section-title mono">BLEU Evaluation</span>
-    </div>
-    <div class="bleu-layout">
-      <div>
-        <div class="bleu-scores">
-          <div class="bleu-score-cell primary">
-            <div class="bleu-score-label mono">Greedy decoding</div>
-            <div class="bleu-score-num mono">42.51</div>
-            <div class="bleu-score-sub mono">Tatoeba val / 500 sentences</div>
-          </div>
-          <div class="bleu-score-cell secondary">
-            <div class="bleu-score-label mono">Beam search k=4</div>
-            <div class="bleu-score-num mono">40.81</div>
-            <div class="bleu-score-sub mono">alpha=0.6 length penalty</div>
-          </div>
-        </div>
-        <div style="margin-bottom: 1.25rem;">
-          <div class="chart-title mono" style="margin-bottom: 0.75rem;">N-gram precision breakdown (greedy)</div>
-          <div class="precision-bars">
-            <div class="prec-row">
-              <span class="prec-label mono">p1</span>
-              <div class="prec-bar-track"><div class="prec-bar-fill fill-blue" style="width: 72.81%"></div></div>
-              <span class="prec-value mono">72.81</span>
-            </div>
-            <div class="prec-row">
-              <span class="prec-label mono">p2</span>
-              <div class="prec-bar-track"><div class="prec-bar-fill fill-indigo" style="width: 47.32%"></div></div>
-              <span class="prec-value mono">47.32</span>
-            </div>
-            <div class="prec-row">
-              <span class="prec-label mono">p3</span>
-              <div class="prec-bar-track"><div class="prec-bar-fill fill-purple" style="width: 34.84%"></div></div>
-              <span class="prec-value mono">34.84</span>
-            </div>
-            <div class="prec-row">
-              <span class="prec-label mono">p4</span>
-              <div class="prec-bar-track"><div class="prec-bar-fill fill-teal" style="width: 29.25%"></div></div>
-              <span class="prec-value mono">29.25</span>
+          <div class="lr-chart-wrap">
+            <div class="chart-container">
+              <div class="chart-title mono">Learning rate schedule (d_model=256, warmup=2000)</div>
+              <canvas id="lr-chart" height="130"></canvas>
             </div>
           </div>
         </div>
-        <div class="bleu-caveat mono">
-          <strong>Note on Evaluation:</strong> These scores are measured on Tatoeba validation sentences, which are
-          shorter and simpler than WMT14 newstest2014. Short sentences inflate
-          BLEU because 4-grams cover a larger fraction of each sentence.
-          The paper's 27.3 BLEU is on newstest2014 and is not directly comparable.
-        </div>
-      </div>
-      <div>
-        <div class="chart-title mono" style="margin-bottom: 0.75rem;">Comparison with paper</div>
-        <div class="table-wrap">
-          <table class="bleu-compare-table">
-            <thead>
-              <tr>
-                <th>metric</th>
-                <th>paper (Base)</th>
-                <th>ours</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="mono">BLEU</td>
-                <td class="mono paper">27.3</td>
-                <td class="mono ours-highlight">42.51 *</td>
-              </tr>
-              <tr>
-                <td class="mono">eval set</td>
-                <td class="mono paper">newstest2014</td>
-                <td class="mono ours">Tatoeba val</td>
-              </tr>
-              <tr>
-                <td class="mono">training data</td>
-                <td class="mono paper">WMT14 (4.5M)</td>
-                <td class="mono ours">Tatoeba (80k)</td>
-              </tr>
-              <tr>
-                <td class="mono">model</td>
-                <td class="mono paper">6L d512 h8</td>
-                <td class="mono ours">3L d256 h4</td>
-              </tr>
-              <tr>
-                <td class="mono">steps</td>
-                <td class="mono paper">100,000</td>
-                <td class="mono ours">10,000</td>
-              </tr>
-              <tr>
-                <td class="mono">hardware</td>
-                <td class="mono paper">8x P100 GPU</td>
-                <td class="mono ours">1x Colab GPU</td>
-              </tr>
-              <tr>
-                <td class="mono">beam size</td>
-                <td class="mono paper">4</td>
-                <td class="mono ours">4</td>
-              </tr>
-              <tr>
-                <td class="mono">length penalty</td>
-                <td class="mono paper">alpha=0.6</td>
-                <td class="mono ours">alpha=0.6</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p style="font-family: var(--mono); font-size: 0.65rem; color: var(--ink-2); margin-top: 0.75rem; line-height: 1.6;">
-          * Not directly comparable. A fair comparison requires WMT14 training and
-          newstest2014 evaluation under Transformer Base configuration.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- IMPLEMENTATION -->
-<section class="impl-section" id="implementation">
-  <div class="wrap">
-    <div class="section-header">
-      <span class="section-num mono">04</span>
-      <span class="section-title mono">Implementation Architecture</span>
-    </div>
-    <div class="impl-grid">
-      <div class="impl-cell">
-        <div class="impl-cell-file mono">attention.py</div>
-        <div class="impl-cell-title mono">Scaled Dot-Product Attention</div>
-        <div class="impl-cell-desc">
-          Manual implementation of Attention(Q,K,V) = softmax(QK^T / sqrt(d_k))V.
-          Includes padding mask, look-ahead mask, and gradient flow verification.
-        </div>
-        <div class="impl-cell-phase mono"><span class="badge-blue">Phase 4</span></div>
-      </div>
-      <div class="impl-cell">
-        <div class="impl-cell-file mono">multi_head_attention.py</div>
-        <div class="impl-cell-title mono">Multi-Head Attention</div>
-        <div class="impl-cell-desc">
-          Four projection matrices W_Q, W_K, W_V, W_O. Split-heads and merge-heads
-          implemented manually. No tf.keras.layers.MultiHeadAttention used.
-        </div>
-        <div class="impl-cell-phase mono"><span class="badge-blue">Phase 5</span></div>
-      </div>
-      <div class="impl-cell">
-        <div class="impl-cell-file mono">positional_encoding.py</div>
-        <div class="impl-cell-title mono">Sinusoidal PE</div>
-        <div class="impl-cell-desc">
-          Exact formula from Section 3.5. Pre-computed at init. Relative position
-          property verified numerically. Embedding scaling by sqrt(d_model) included.
-        </div>
-        <div class="impl-cell-phase mono"><span class="badge-purple">Phase 6</span></div>
-      </div>
-      <div class="impl-cell">
-        <div class="impl-cell-file mono">encoder.py / decoder.py</div>
-        <div class="impl-cell-title mono">Encoder and Decoder Stacks</div>
-        <div class="impl-cell-desc">
-          POST-LN architecture following the original paper. Residual connections
-          and LayerNorm verified. Decoder causal mask tested across all heads.
-        </div>
-        <div class="impl-cell-phase mono"><span class="badge-indigo">Phase 8 / 9</span></div>
-      </div>
-      <div class="impl-cell">
-        <div class="impl-cell-file mono">training.py</div>
-        <div class="impl-cell-title mono">Training Infrastructure</div>
-        <div class="impl-cell-desc">
-          Label smoothing loss, original LR schedule, gradient clipping,
-          checkpoint management, session recovery, and experiment logging to CSV.
-        </div>
-        <div class="impl-cell-phase mono"><span class="badge-emerald">Phase 11</span></div>
-      </div>
-      <div class="impl-cell">
-        <div class="impl-cell-file mono">decoding.py / bleu.py</div>
-        <div class="impl-cell-title mono">Decoding and Evaluation</div>
-        <div class="impl-cell-desc">
-          Greedy decoding with repeat penalty. Beam search with length penalty
-          (paper: k=4, alpha=0.6). BLEU-4 implemented from scratch with
-          modified precision and brevity penalty.
-        </div>
-        <div class="impl-cell-phase mono"><span class="badge-amber">Phase 14 / 15</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ATTENTION VIZ -->
-<section class="attn-section" id="attention">
-  <div class="wrap">
-    <div class="section-header">
-      <span class="section-num mono">05</span>
-      <span class="section-title mono">Attention Patterns</span>
-    </div>
-    <div class="attn-layout">
-      <div class="attn-controls">
-        <div class="attn-control-group">
-          <div class="attn-control-label mono">attention type</div>
-          <div class="attn-btn-row">
-            <button class="attn-btn active" onclick="setAttnType('cross')" id="btn-cross">Cross-attention</button>
-            <button class="attn-btn" onclick="setAttnType('enc-self')" id="btn-enc-self">Encoder self-attention</button>
-            <button class="attn-btn" onclick="setAttnType('dec-self')" id="btn-dec-self">Decoder self-attention</button>
+        <div class="training-notes">
+          <div class="note-block">
+            <div class="note-block-title mono">Configuration</div>
+            <div class="note-block-body">
+              COLAB-SCALE: 3 layers, <code>d_model=256</code>, 4 heads, <code>d_ff=1024</code>.
+              The Transformer Base architecture (6L d512) is fully implemented but
+              requires more compute than a single Colab session allows.
+            </div>
+          </div>
+          <div class="note-block">
+            <div class="note-block-title mono">Optimizer</div>
+            <div class="note-block-body">
+              Adam with paper values: <code>beta_1=0.9</code>, <code>beta_2=0.98</code>,
+              <code>epsilon=1e-9</code>. Learning rate follows the original warmup
+              and inverse square root decay schedule from Section 5.3.
+            </div>
+          </div>
+          <div class="note-block">
+            <div class="note-block-title mono">Label smoothing</div>
+            <div class="note-block-body">
+              <code>epsilon=0.1</code> as per Section 5.4. Implemented manually
+              with explicit PAD masking. The theoretical minimum loss with
+              smoothing is not zero, so accuracy was used as the convergence
+              metric during the toy overfit test.
+            </div>
+          </div>
+          <div class="note-block">
+            <div class="note-block-title mono">Session recovery</div>
+            <div class="note-block-body">
+              Checkpoints saved every 1000 steps in both TF format and
+              <code>.weights.h5</code>. TF checkpoint restore was found unreliable
+              across sessions due to a Keras build ordering issue. h5 weights
+              are the primary recovery mechanism.
+            </div>
+          </div>
+          <div class="note-block">
+            <div class="note-block-title mono">Result</div>
+            <div class="note-block-body">
+              Train loss 5.38 to 2.14 over 10,000 steps in 35 minutes.
+              Validation loss 4.36 to 2.63, tracking train loss with no divergence.
+            </div>
           </div>
         </div>
-        <div class="attn-control-group">
-          <div class="attn-control-label mono">example sentence</div>
-          <div class="attn-btn-row">
-            <button class="attn-btn active" onclick="setSentence(0)" id="btn-s0">I am a student .</button>
-            <button class="attn-btn" onclick="setSentence(1)" id="btn-s1">She is a teacher .</button>
-            <button class="attn-btn" onclick="setSentence(2)" id="btn-s2">The cat is small .</button>
-            <button class="attn-btn" onclick="setSentence(3)" id="btn-s3">He likes music .</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="bleu-section" id="bleu">
+    <div class="wrap">
+      <div class="section-header">
+        <span class="section-num mono">03</span>
+        <span class="section-title mono">BLEU Evaluation</span>
+      </div>
+      <div class="bleu-layout">
+        <div>
+          <div class="bleu-scores">
+            <div class="bleu-score-cell primary">
+              <div class="bleu-score-label mono">Greedy decoding</div>
+              <div class="bleu-score-num mono">42.51</div>
+              <div class="bleu-score-sub mono">Tatoeba val / 500 sentences</div>
+            </div>
+            <div class="bleu-score-cell secondary">
+              <div class="bleu-score-label mono">Beam search k=4</div>
+              <div class="bleu-score-num mono">40.81</div>
+              <div class="bleu-score-sub mono">alpha=0.6 length penalty</div>
+            </div>
+          </div>
+          <div style="margin-bottom: 1.25rem;">
+            <div class="chart-title mono" style="margin-bottom: 0.75rem;">N-gram precision breakdown (greedy)</div>
+            <div class="precision-bars">
+              <div class="prec-row">
+                <span class="prec-label mono">p1</span>
+                <div class="prec-bar-track">
+                  <div class="prec-bar-fill fill-blue" style="width: 72.81%"></div>
+                </div>
+                <span class="prec-value mono">72.81</span>
+              </div>
+              <div class="prec-row">
+                <span class="prec-label mono">p2</span>
+                <div class="prec-bar-track">
+                  <div class="prec-bar-fill fill-indigo" style="width: 47.32%"></div>
+                </div>
+                <span class="prec-value mono">47.32</span>
+              </div>
+              <div class="prec-row">
+                <span class="prec-label mono">p3</span>
+                <div class="prec-bar-track">
+                  <div class="prec-bar-fill fill-purple" style="width: 34.84%"></div>
+                </div>
+                <span class="prec-value mono">34.84</span>
+              </div>
+              <div class="prec-row">
+                <span class="prec-label mono">p4</span>
+                <div class="prec-bar-track">
+                  <div class="prec-bar-fill fill-teal" style="width: 29.25%"></div>
+                </div>
+                <span class="prec-value mono">29.25</span>
+              </div>
+            </div>
+          </div>
+          <div class="bleu-caveat mono">
+            <strong>Note on Evaluation:</strong> These scores are measured on Tatoeba validation sentences, which are
+            shorter and simpler than WMT14 newstest2014. Short sentences inflate
+            BLEU because 4-grams cover a larger fraction of each sentence.
+            The paper's 27.3 BLEU is on newstest2014 and is not directly comparable.
           </div>
         </div>
-        <p class="attn-note mono">
-          Interactive heatmap simulation based on trained model layer responses.
-        </p>
-      </div>
-      <div class="attn-canvas-wrap">
-        <div class="attn-canvas-title mono" id="attn-canvas-title">
-          Cross-attention / last decoder layer / mean across 4 heads
-        </div>
-        <canvas id="attn-canvas" height="280"></canvas>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- DATA -->
-<section class="data-section" id="data">
-  <div class="wrap">
-    <div class="section-header">
-      <span class="section-num mono">06</span>
-      <span class="section-title mono">Dataset Strategy</span>
-    </div>
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>stage</th>
-            <th>dataset</th>
-            <th>size</th>
-            <th>purpose</th>
-            <th>status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="mono"><span class="stage-badge badge-a">A</span></td>
-            <td class="mono">Handmade EN-DE</td>
-            <td class="mono">20 pairs</td>
-            <td class="mono">Pipeline smoke test. Toy overfit verification.</td>
-            <td class="mono"><span class="status-pill completed">Completed</span></td>
-          </tr>
-          <tr>
-            <td class="mono"><span class="stage-badge badge-b">B</span></td>
-            <td class="mono">Tatoeba EN-DE (OPUS)</td>
-            <td class="mono">~80k pairs</td>
-            <td class="mono">BPE vocab training. Full training run. BLEU evaluation.</td>
-            <td class="mono"><span class="status-pill completed">Completed</span></td>
-          </tr>
-          <tr>
-            <td class="mono"><span class="stage-badge badge-c">C</span></td>
-            <td class="mono">WMT14 subset</td>
-            <td class="mono">up to 500k pairs</td>
-            <td class="mono">Intermediate scaling experiment. Reserved.</td>
-            <td class="mono"><span class="status-pill reserved">Reserved</span></td>
-          </tr>
-          <tr>
-            <td class="mono"><span class="stage-badge badge-d">D</span></td>
-            <td class="mono">WMT14 EN-DE full</td>
-            <td class="mono">~4.5M pairs</td>
-            <td class="mono">Paper reproduction target. Requires multi-GPU.</td>
-            <td class="mono"><span class="status-pill reserved">Reserved</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p style="font-family: var(--mono); font-size: 0.68rem; color: var(--ink-2); margin-top: 1rem; line-height: 1.6;">
-      Stages C and D were reserved. The project reached Stage B and validated
-      the full pipeline end-to-end. Full WMT14 training requires sustained multi-GPU access
-      beyond single Colab limits.
-    </p>
-  </div>
-</section>
-
-<!-- CHECKLIST -->
-<section class="checklist-section" id="checklist">
-  <div class="wrap">
-    <div class="section-header">
-      <span class="section-num mono">07</span>
-      <span class="section-title mono">Reproduction Checklist</span>
-    </div>
-    <div class="checklist-layout">
-      <div>
-        <div class="checklist-group-title mono text-emerald">✓ reproduced features</div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">Scaled dot-product attention<span class="reason">Implemented from scratch, shape and gradient tests pass</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">Multi-head attention (8 heads)<span class="reason">4 projections, verified 512/8=64</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">Sinusoidal positional encoding<span class="reason">Exact formula, relative position property verified</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">Feed-forward network<span class="reason">FFN(x) = ReLU(xW1+b1)W2+b2, d_ff=2048</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">POST-LN encoder and decoder<span class="reason">6 layers each, residual + LayerNorm verified</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">Weight tying<span class="reason">Decoder embedding = output projection transposed</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">Label smoothing (eps=0.1)<span class="reason">Manual implementation with PAD masking</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">Original LR schedule<span class="reason">Exact warmup formula, peak verified at step 4000</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">Adam (beta2=0.98, eps=1e-9)<span class="reason">Paper values, not Keras defaults</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">BPE tokenization<span class="reason">From scratch, shared vocab, Sennrich 2016 convention</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">Beam search (k=4, alpha=0.6)<span class="reason">Length penalty from Section 5.4</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">BLEU-4 from scratch<span class="reason">Modified precision and brevity penalty, verified</span></div></div>
-        <div class="check-item"><div class="check-dot yes"></div><div class="check-text mono">Toy overfit (20/20 exact)<span class="reason">Pipeline correctness gate passed</span></div></div>
-      </div>
-      <div>
-        <div class="checklist-group-title mono text-rose">✕ out of scope / hardware limited</div>
-        <div class="check-item"><div class="check-dot no"></div><div class="check-text mono">WMT14 EN-DE training<span class="reason">4.5M pairs requires sustained multi-GPU access</span></div></div>
-        <div class="check-item"><div class="check-dot no"></div><div class="check-text mono">100,000 training steps<span class="reason">Colab session time limit; completed 10k steps</span></div></div>
-        <div class="check-item"><div class="check-dot no"></div><div class="check-text mono">27.3 BLEU on newstest2014<span class="reason">Not evaluated on newstest2014; different eval set used</span></div></div>
-        <div class="check-item"><div class="check-dot no"></div><div class="check-text mono">Checkpoint averaging<span class="reason">Not implemented in current phases</span></div></div>
-        <div class="check-item"><div class="check-dot no"></div><div class="check-text mono">Transformer Big configuration<span class="reason">Out of scope for single Colab GPU</span></div></div>
-        <div class="checklist-card">
-          <p style="font-family: var(--mono); font-size: 0.72rem; line-height: 1.7; color: var(--ink-2);">
-            <strong>Summary:</strong> The architecture is fully and correctly implemented.
-            The gap between our scale and the paper is hardware and compute bound—not due to architectural omissions.
+        <div>
+          <div class="chart-title mono" style="margin-bottom: 0.75rem;">Comparison with paper</div>
+          <div class="table-wrap">
+            <table class="bleu-compare-table">
+              <thead>
+                <tr>
+                  <th>metric</th>
+                  <th>paper (Base)</th>
+                  <th>ours</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono">BLEU</td>
+                  <td class="mono paper">27.3</td>
+                  <td class="mono ours-highlight">42.51 *</td>
+                </tr>
+                <tr>
+                  <td class="mono">eval set</td>
+                  <td class="mono paper">newstest2014</td>
+                  <td class="mono ours">Tatoeba val</td>
+                </tr>
+                <tr>
+                  <td class="mono">training data</td>
+                  <td class="mono paper">WMT14 (4.5M)</td>
+                  <td class="mono ours">Tatoeba (80k)</td>
+                </tr>
+                <tr>
+                  <td class="mono">model</td>
+                  <td class="mono paper">6L d512 h8</td>
+                  <td class="mono ours">3L d256 h4</td>
+                </tr>
+                <tr>
+                  <td class="mono">steps</td>
+                  <td class="mono paper">100,000</td>
+                  <td class="mono ours">10,000</td>
+                </tr>
+                <tr>
+                  <td class="mono">hardware</td>
+                  <td class="mono paper">8x P100 GPU</td>
+                  <td class="mono ours">1x Colab GPU</td>
+                </tr>
+                <tr>
+                  <td class="mono">beam size</td>
+                  <td class="mono paper">4</td>
+                  <td class="mono ours">4</td>
+                </tr>
+                <tr>
+                  <td class="mono">length penalty</td>
+                  <td class="mono paper">alpha=0.6</td>
+                  <td class="mono ours">alpha=0.6</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p
+            style="font-family: var(--mono); font-size: 0.65rem; color: var(--ink-2); margin-top: 0.75rem; line-height: 1.6;">
+            * Not directly comparable. A fair comparison requires WMT14 training and
+            newstest2014 evaluation under Transformer Base configuration.
           </p>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="wrap">
-    <div class="footer-left mono">
-      <div class="footer-author">
-        <strong>@Sourajit Paul UEMK</strong>
-        <div class="footer-socials">
-          <a href="https://github.com/Sourajit-1905" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile" class="social-link">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-            </svg>
-          </a>
-          <a href="https://www.linkedin.com/in/sourajit-paul-347351322/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" class="social-link">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.64a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2z"/>
-            </svg>
-          </a>
+  <!-- IMPLEMENTATION -->
+  <section class="impl-section" id="implementation">
+    <div class="wrap">
+      <div class="section-header">
+        <span class="section-num mono">04</span>
+        <span class="section-title mono">Implementation Architecture</span>
+      </div>
+      <div class="impl-grid">
+        <div class="impl-cell">
+          <div class="impl-cell-file mono">attention.py</div>
+          <div class="impl-cell-title mono">Scaled Dot-Product Attention</div>
+          <div class="impl-cell-desc">
+            Manual implementation of Attention(Q,K,V) = softmax(QK^T / sqrt(d_k))V.
+            Includes padding mask, look-ahead mask, and gradient flow verification.
+          </div>
+          <div class="impl-cell-phase mono"><span class="badge-blue">Phase 4</span></div>
+        </div>
+        <div class="impl-cell">
+          <div class="impl-cell-file mono">multi_head_attention.py</div>
+          <div class="impl-cell-title mono">Multi-Head Attention</div>
+          <div class="impl-cell-desc">
+            Four projection matrices W_Q, W_K, W_V, W_O. Split-heads and merge-heads
+            implemented manually. No tf.keras.layers.MultiHeadAttention used.
+          </div>
+          <div class="impl-cell-phase mono"><span class="badge-blue">Phase 5</span></div>
+        </div>
+        <div class="impl-cell">
+          <div class="impl-cell-file mono">positional_encoding.py</div>
+          <div class="impl-cell-title mono">Sinusoidal PE</div>
+          <div class="impl-cell-desc">
+            Exact formula from Section 3.5. Pre-computed at init. Relative position
+            property verified numerically. Embedding scaling by sqrt(d_model) included.
+          </div>
+          <div class="impl-cell-phase mono"><span class="badge-purple">Phase 6</span></div>
+        </div>
+        <div class="impl-cell">
+          <div class="impl-cell-file mono">encoder.py / decoder.py</div>
+          <div class="impl-cell-title mono">Encoder and Decoder Stacks</div>
+          <div class="impl-cell-desc">
+            POST-LN architecture following the original paper. Residual connections
+            and LayerNorm verified. Decoder causal mask tested across all heads.
+          </div>
+          <div class="impl-cell-phase mono"><span class="badge-indigo">Phase 8 / 9</span></div>
+        </div>
+        <div class="impl-cell">
+          <div class="impl-cell-file mono">training.py</div>
+          <div class="impl-cell-title mono">Training Infrastructure</div>
+          <div class="impl-cell-desc">
+            Label smoothing loss, original LR schedule, gradient clipping,
+            checkpoint management, session recovery, and experiment logging to CSV.
+          </div>
+          <div class="impl-cell-phase mono"><span class="badge-emerald">Phase 11</span></div>
+        </div>
+        <div class="impl-cell">
+          <div class="impl-cell-file mono">decoding.py / bleu.py</div>
+          <div class="impl-cell-title mono">Decoding and Evaluation</div>
+          <div class="impl-cell-desc">
+            Greedy decoding with repeat penalty. Beam search with length penalty
+            (paper: k=4, alpha=0.6). BLEU-4 implemented from scratch with
+            modified precision and brevity penalty.
+          </div>
+          <div class="impl-cell-phase mono"><span class="badge-amber">Phase 14 / 15</span></div>
         </div>
       </div>
     </div>
-    <div class="footer-right mono">
-      Transformer from Scratch - <strong>TensorFlow 2 ● Keras ● Python ● NumPy ● Matplotlib </strong>
-    </div>
-  </div>
-</footer>
+  </section>
 
-<script src="script.js" defer></script>
+  <!-- ATTENTION VIZ -->
+  <section class="attn-section" id="attention">
+    <div class="wrap">
+      <div class="section-header">
+        <span class="section-num mono">05</span>
+        <span class="section-title mono">Attention Patterns</span>
+      </div>
+      <div class="attn-layout">
+        <div class="attn-controls">
+          <div class="attn-control-group">
+            <div class="attn-control-label mono">attention type</div>
+            <div class="attn-btn-row">
+              <button class="attn-btn active" onclick="setAttnType('cross')" id="btn-cross">Cross-attention</button>
+              <button class="attn-btn" onclick="setAttnType('enc-self')" id="btn-enc-self">Encoder
+                self-attention</button>
+              <button class="attn-btn" onclick="setAttnType('dec-self')" id="btn-dec-self">Decoder
+                self-attention</button>
+            </div>
+          </div>
+          <div class="attn-control-group">
+            <div class="attn-control-label mono">example sentence</div>
+            <div class="attn-btn-row">
+              <button class="attn-btn active" onclick="setSentence(0)" id="btn-s0">I am a student .</button>
+              <button class="attn-btn" onclick="setSentence(1)" id="btn-s1">She is a teacher .</button>
+              <button class="attn-btn" onclick="setSentence(2)" id="btn-s2">The cat is small .</button>
+              <button class="attn-btn" onclick="setSentence(3)" id="btn-s3">He likes music .</button>
+            </div>
+          </div>
+          <p class="attn-note mono">
+            Interactive heatmap simulation based on trained model layer responses.
+          </p>
+        </div>
+        <div class="attn-canvas-wrap">
+          <div class="attn-canvas-title mono" id="attn-canvas-title">
+            Cross-attention / last decoder layer / mean across 4 heads
+          </div>
+          <canvas id="attn-canvas" height="280"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DATA -->
+  <section class="data-section" id="data">
+    <div class="wrap">
+      <div class="section-header">
+        <span class="section-num mono">06</span>
+        <span class="section-title mono">Dataset Strategy</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>stage</th>
+              <th>dataset</th>
+              <th>size</th>
+              <th>purpose</th>
+              <th>status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono"><span class="stage-badge badge-a">A</span></td>
+              <td class="mono">Handmade EN-DE</td>
+              <td class="mono">20 pairs</td>
+              <td class="mono">Pipeline smoke test. Toy overfit verification.</td>
+              <td class="mono"><span class="status-pill completed">Completed</span></td>
+            </tr>
+            <tr>
+              <td class="mono"><span class="stage-badge badge-b">B</span></td>
+              <td class="mono">Tatoeba EN-DE (OPUS)</td>
+              <td class="mono">~80k pairs</td>
+              <td class="mono">BPE vocab training. Full training run. BLEU evaluation.</td>
+              <td class="mono"><span class="status-pill completed">Completed</span></td>
+            </tr>
+            <tr>
+              <td class="mono"><span class="stage-badge badge-c">C</span></td>
+              <td class="mono">WMT14 subset</td>
+              <td class="mono">up to 500k pairs</td>
+              <td class="mono">Intermediate scaling experiment. Reserved.</td>
+              <td class="mono"><span class="status-pill reserved">Reserved</span></td>
+            </tr>
+            <tr>
+              <td class="mono"><span class="stage-badge badge-d">D</span></td>
+              <td class="mono">WMT14 EN-DE full</td>
+              <td class="mono">~4.5M pairs</td>
+              <td class="mono">Paper reproduction target. Requires multi-GPU.</td>
+              <td class="mono"><span class="status-pill reserved">Reserved</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-family: var(--mono); font-size: 0.68rem; color: var(--ink-2); margin-top: 1rem; line-height: 1.6;">
+        Stages C and D were reserved. The project reached Stage B and validated
+        the full pipeline end-to-end. Full WMT14 training requires sustained multi-GPU access
+        beyond single Colab limits.
+      </p>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section class="checklist-section" id="checklist">
+    <div class="wrap">
+      <div class="section-header">
+        <span class="section-num mono">07</span>
+        <span class="section-title mono">Implementation Checklist</span>
+      </div>
+      <div class="checklist-layout">
+        <div>
+          <div class="checklist-group-title mono text-emerald">Implemented features</div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">Scaled dot-product attention<span class="reason">Implemented from scratch,
+                shape and gradient tests pass</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">Multi-head attention (8 heads)<span class="reason">4 projections, verified
+                512/8=64</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">Sinusoidal positional encoding<span class="reason">Exact formula, relative
+                position property verified</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">Feed-forward network<span class="reason">FFN(x) = ReLU(xW1+b1)W2+b2,
+                d_ff=2048</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">POST-LN encoder and decoder<span class="reason">6 layers each, residual +
+                LayerNorm verified</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">Weight tying<span class="reason">Decoder embedding = output projection
+                transposed</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">Label smoothing (eps=0.1)<span class="reason">Manual implementation with PAD
+                masking</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">Original LR schedule<span class="reason">Exact warmup formula, peak verified at
+                step 4000</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">Adam (beta2=0.98, eps=1e-9)<span class="reason">Paper values, not Keras
+                defaults</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">BPE tokenization<span class="reason">From scratch, shared vocab, Sennrich 2016
+                convention</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">Beam search (k=4, alpha=0.6)<span class="reason">Length penalty from Section
+                5.4</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">BLEU-4 from scratch<span class="reason">Modified precision and brevity penalty,
+                verified</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot yes"></div>
+            <div class="check-text mono">Toy overfit (20/20 exact)<span class="reason">Pipeline correctness gate
+                passed</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="checklist-group-title mono text-rose">Constraints</div>
+          <div class="check-item">
+            <div class="check-dot no"></div>
+            <div class="check-text mono">WMT14 EN-DE training<span class="reason">4.5M pairs requires sustained
+                multi-GPU access</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot no"></div>
+            <div class="check-text mono">100,000 training steps<span class="reason">Colab session time limit; completed
+                10k steps</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot no"></div>
+            <div class="check-text mono">27.3 BLEU on newstest2014<span class="reason">Not evaluated on newstest2014;
+                different eval set used</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot no"></div>
+            <div class="check-text mono">Checkpoint averaging<span class="reason">Not implemented in current
+                phases</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot no"></div>
+            <div class="check-text mono">Transformer Big configuration<span class="reason">Out of scope for single Colab
+                GPU</span></div>
+          </div>
+          <div class="checklist-card">
+            <p style="font-family: var(--mono); font-size: 0.72rem; line-height: 1.7; color: var(--ink-2);">
+              <strong>Summary:</strong> The architecture is fully and correctly implemented.
+              The gap between our scale and the paper is hardware and compute bound—not due to architectural omissions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="wrap">
+      <div class="footer-left mono">
+        <div class="footer-author">
+          <strong>@Sourajit Paul UEMK</strong>
+          <div class="footer-socials">
+            <a href="https://github.com/Sourajit-1905" target="_blank" rel="noopener noreferrer"
+              aria-label="GitHub Profile" class="social-link">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+              </svg>
+            </a>
+            <a href="https://www.linkedin.com/in/sourajit-paul-347351322/" target="_blank" rel="noopener noreferrer"
+              aria-label="LinkedIn Profile" class="social-link">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.64a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2z" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-right mono">
+        Transformer from Scratch - <strong>TensorFlow 2 ● Keras ● Python ● NumPy ● Matplotlib </strong>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
 </body>
+
 </html>

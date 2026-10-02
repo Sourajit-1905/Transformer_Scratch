@@ -57,22 +57,21 @@ TensorFlow 2 / Keras / Python / Google Colab / NumPy / Matplotlib
 
 | Phase | File | What was done |
 |---|---|---|
-| 2 | [Data Preprocessing](docs/phase2_documentation.md) | Staged data pipeline, masking, tf.data |
-| 3 | [Tokenization](docs/phase3_documentation.md) | BPE from scratch, shared vocab |
-| 4 | [Attention](docs/phase4_documentation.md) | Scaled dot-product attention |
-| 5 | [Multi-Head Attention](docs/phase5_documentation.md) | 4 projections, split/merge heads |
-| 6 | [Positional Encoding](docs/phase6_documentation.md) | Sinusoidal PE, exact paper formula |
-| 7 | [Feed-Forward Network](docs/phase7_documentation.md) | FFN(x) = ReLU(xW1+b1)W2+b2 |
-| 8 | [Encoder](docs/phase8_documentation.md) | POST-LN encoder stack |
-| 9 | [Decoder](docs/phase9_documentation.md) | POST-LN decoder, cross-attention |
-| 10 | [Transformer](docs/phase10_documentation.md) | Complete model, weight tying |
-| 11 | [Training](docs/phase11_documentation.md) | Loss, LR schedule, training loop |
-| 12 | [Toy Overfit](docs/phase12_documentation.md) | Pipeline verification, 20/20 matches |
-| 13 | [Small Scale Experiment](docs/phase13_documentation.md) | Tatoeba training run |
-| 14 | [Decoding](docs/phase14_documentation.md) | Greedy and beam search |
-| 15 | [BLEU Evaluation](docs/phase15_documentation.md) | BLEU-4 from scratch |
-| 16 | [Attention Visualization](docs/phase16_documentation.md) | Heatmaps, all three attention types |
-| 17 | Final Results | Reproduction assessment and dashboard |
+| 2 | [Data Preprocessing](./documentation.md#phase-2-dataset-strategy) | Staged data pipeline, masking, tf.data |
+| 3 | [Tokenization](./documentation.md#phase-3--tokenization) | BPE from scratch, shared vocab |
+| 4 | [Attention](./documentation.md#phase-4--attention-from-scratch) | Scaled dot-product attention |
+| 5 | [Multi-Head Attention](./documentation.md#phase-5--multi-head-attention) | 4 projections, split/merge heads |
+| 6 | [Positional Encoding](./documentation.md#phase-6--positional-encoding) | Sinusoidal PE, exact paper formula |
+| 7 | [Feed-Forward Network](./documentation.md#phase-7--feed-forward-network) | FFN(x) = ReLU(xW1+b1)W2+b2 |
+| 8 | [Encoder](./documentation.md#phase-8--encoder) | POST-LN encoder stack |
+| 9 | [Decoder](./documentation.md#phase-9--decoder) | POST-LN decoder, cross-attention |
+| 10 | [Complete Transformer](./documentation.md#phase-10--complete-transformer) | Complete model, weight tying |
+| 11 | [Training Loss and Loop](./documentation.md#phase-11--training-loss-and-loop) | Loss, LR schedule, training loop |
+| 12 | [Toy Overfitting](./documentation.md#phase-12--toy-overfitting) | Pipeline verification, 20/20 matches |
+| 13 | [Small Scale Experiment](./documentation.md#phase-13--small-scale-experiment) | Tatoeba training run |
+| 14 | [Decoding](./documentation.md#phase-14--decoding) | Greedy and beam search |
+| 15 | [BLEU Evaluation](./documentation.md#phase-15--bleu-evaluation) | BLEU-4 from scratch |
+| 16 | [Attention Visualization](./documentation.md#phase-16--attention-visualization) | Heatmaps, all three attention types |
 
 ---
 
